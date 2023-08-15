@@ -93,14 +93,6 @@ export const useStore = defineStore('selectors', {
     selectors: [] as Selector[],
   }),
   actions: {
-    /** Add/Remove a selector checking datum[field] === value or datum[field].includes(value). */
-    toggleEqualSelector(field: string, value: unknown): void {
-      this.toggleSelector(buildEqualSelector(field, value))
-    },
-    /** Add/Remove a selector checking datum[field] in closed range [left, right]. */
-    toggleRangeSelector(field: string, range: [unknown, unknown]): void {
-      this.toggleSelector(buildRangeSelector(field, range))
-    },
     /** Add/Remove a selector of unlabeled data entries. */
     toggleUnlabeledSelector(): void {
       this.toggleSelector(buildUnlabeledSelector())
