@@ -1,0 +1,31 @@
+{
+  "cSpell.words": [
+    "Attributify",
+    "autodocs",
+    "chromedark",
+    "composables",
+    "Iconify",
+    "oldvis",
+    "persistedstate",
+    "phash",
+    "pinia",
+    "rgba",
+    "taze",
+    "typecheck",
+    "unocss",
+    "unplugin",
+    "uuidv4",
+    "Vite",
+    "Vitesse",
+    "vueuse",
+    "xmark"
+  ],
+  "prettier.enable": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "files.associations": {
+    "*.css": "postcss"
+  },
+  "editor.formatOnSave": false
+}
