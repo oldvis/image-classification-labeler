@@ -19,7 +19,7 @@
       <a
         i-fa6-brands:github icon-btn
         rel="noreferrer"
-        href="https://github.com/oldvis/gallery"
+        href="https://github.com/oldvis/image-classification-labeler"
         target="_blank"
         title="GitHub"
       />
