@@ -2,7 +2,7 @@
 import { SelectorType } from '~/stores/selector'
 import type { Selector } from '~/stores/selector'
 
-const { selector } = defineProps({
+const props = defineProps({
   selector: {
     type: Object as PropType<Selector>,
     required: true,
@@ -12,21 +12,23 @@ const emit = defineEmits<{
   (e: 'removeSelector', d: Selector<SelectorType>): void
 }>()
 
+const { selector } = toRefs(props)
+
 const isSearchSelector = computed(() => (
-  selector.type === SelectorType.Fuse
+  selector.value.type === SelectorType.Fuse
 ))
 const isUnlabeledSelector = computed(() => (
-  selector.type === SelectorType.Unlabeled
+  selector.value.type === SelectorType.Unlabeled
 ))
 const isLabeledSelector = computed(() => (
-  selector.type === SelectorType.Labeled
+  selector.value.type === SelectorType.Labeled
 ))
 const isUnsureSelector = computed(() => (
-  selector.type === SelectorType.Unsure
+  selector.value.type === SelectorType.Unsure
 ))
 const text = computed(() => {
   if (isSearchSelector.value) {
-    return `search: '${(selector as Selector<SelectorType.Fuse>).query.pattern}'`
+    return `search: '${(selector.value as Selector<SelectorType.Fuse>).query.pattern}'`
   }
   if (isUnlabeledSelector.value) {
     return 'Unlabeled'
