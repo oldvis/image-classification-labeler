@@ -6,7 +6,7 @@ import type { Visualization } from '~/plugins/visualization'
 import { useStore } from '~/stores/message'
 import { isDark } from '~/composables/dark'
 
-const { datum, index } = defineProps({
+const props = defineProps({
   /** Render the given part of the visualization metadata. */
   datum: {
     type: Object as PropType<Partial<Visualization>>,
@@ -18,12 +18,13 @@ const { datum, index } = defineProps({
   },
 })
 
+const { datum } = toRefs(props)
 const showMetadata = ref(false)
 const { addSuccessMessage } = useStore()
 const { copy } = useClipboard()
 
 const onClickCopy = () => {
-  copy(JSON.stringify(datum))
+  copy(JSON.stringify(datum.value))
   addSuccessMessage('Metadata Copied.')
 }
 const isHttps = (url: string | null | undefined): boolean => {
@@ -46,7 +47,10 @@ const isHttps = (url: string | null | undefined): boolean => {
       </div>
       <b>{{ datum.displayName }}</b>
     </div>
-    <div class="flex pt-1 gap-1">
+    <div
+      class="pt-1 gap-1"
+      flex="~ col sm:row"
+    >
       <div class="basis-4/10">
         <img
           v-if="isHttps(datum.downloadUrl)"
