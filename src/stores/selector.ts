@@ -1,6 +1,7 @@
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
 import Fuse from 'fuse.js'
+import type { IFuseOptions } from 'fuse.js'
 import { isEqual } from 'lodash'
 import { useStore as useAnnotationStore } from './annotation'
 import type { Visualization } from '~/plugins/visualization'
@@ -23,7 +24,7 @@ export interface Selector<Type extends SelectorType = SelectorType> {
   query: (Type extends SelectorType.Fuse
     ? {
         pattern: string
-        options: Fuse.IFuseOptions<Visualization>
+        options: IFuseOptions<Visualization>
       }
     : null)
   /** The uuid of the selector. */
@@ -32,7 +33,7 @@ export interface Selector<Type extends SelectorType = SelectorType> {
 
 const buildSearchSelector = (
   pattern: string,
-  options: Fuse.IFuseOptions<Visualization>,
+  options: IFuseOptions<Visualization>,
 ): Selector<SelectorType.Fuse> => ({
   type: SelectorType.Fuse,
   query: { pattern, options },
