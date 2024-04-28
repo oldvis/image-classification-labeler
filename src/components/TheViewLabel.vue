@@ -46,7 +46,7 @@ const isClassified = (uuid: string, category: Category): boolean => {
   const flag = labelsByUuid.value[uuid]
     .findIndex((d) => (
       d.type === AnnotationType.Classification
-          && d.value === category
+      && d.value === category
     )) !== -1
   return flag
 }

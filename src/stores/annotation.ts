@@ -66,17 +66,17 @@ export const useStore = defineStore('annotation', {
       /** Whether to replace old annotation. */
       const index = this.annotations.findIndex((d) => (
         d.type === type
-          && d.subject === subject
-          && (
-            ((value === Category.Vis || value === Category.NotVis)
-              && (d.value === Category.Vis || d.value === Category.NotVis))
-            || ((value === Category.Map || value === Category.NotMap)
-              && (d.value === Category.Map || d.value === Category.NotMap))
-            || ((value === Category.Text || value === Category.NotText)
-              && (d.value === Category.Text || d.value === Category.NotText))
-            || ((value === Category.Table || value === Category.NotTable)
-              && (d.value === Category.Table || d.value === Category.NotTable))
-          )
+        && d.subject === subject
+        && (
+          ((value === Category.Vis || value === Category.NotVis)
+          && (d.value === Category.Vis || d.value === Category.NotVis))
+          || ((value === Category.Map || value === Category.NotMap)
+          && (d.value === Category.Map || d.value === Category.NotMap))
+          || ((value === Category.Text || value === Category.NotText)
+          && (d.value === Category.Text || d.value === Category.NotText))
+          || ((value === Category.Table || value === Category.NotTable)
+          && (d.value === Category.Table || d.value === Category.NotTable))
+        )
       ))
       const replace = index !== -1
       const annotation: Annotation = {
@@ -97,8 +97,8 @@ export const useStore = defineStore('annotation', {
       /** Whether to replace old annotation. */
       const index = this.annotations.findIndex((d) => (
         d.type === type
-          && d.subject === subject
-          && d.value === value
+        && d.subject === subject
+        && d.value === value
       ))
       if (index !== -1) {
         this.annotations.splice(index, 1)
