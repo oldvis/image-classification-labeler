@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
+import type { Annotation } from '~/stores/annotation'
 import { groupBy } from 'lodash'
+import { storeToRefs } from 'pinia'
 import { saveJsonFile, uploadJsonFile } from '~/plugins/file'
 import { AnnotationType, Category, useStore as useAnnotationStore } from '~/stores/annotation'
-import type { Annotation } from '~/stores/annotation'
 import { useStore as useVisStore } from '~/stores/visualization'
 
 const annotationStore = useAnnotationStore()

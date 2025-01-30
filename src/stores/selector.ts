@@ -1,10 +1,10 @@
+import type { IFuseOptions } from 'fuse.js'
+import type { Visualization } from '~/plugins/visualization'
+import Fuse from 'fuse.js'
+import { isEqual } from 'lodash'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
-import Fuse from 'fuse.js'
-import type { IFuseOptions } from 'fuse.js'
-import { isEqual } from 'lodash'
 import { useStore as useAnnotationStore } from './annotation'
-import type { Visualization } from '~/plugins/visualization'
 
 export enum SelectorType {
   /** The type of selectors that follow Fuse.js options schema. */

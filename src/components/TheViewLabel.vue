@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { onKeyStroke, useElementVisibility } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import {
   AnnotationType,
   Category,
   useStore as useAnnotationStore,
 } from '~/stores/annotation'
-import { useStore as useVisStore } from '~/stores/visualization'
 import { useStore as useSelectorStore } from '~/stores/selector'
+import { useStore as useVisStore } from '~/stores/visualization'
 
 const { visualizations } = storeToRefs(useVisStore())
 

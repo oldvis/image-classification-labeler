@@ -1,8 +1,8 @@
+import { groupBy } from 'lodash'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
-import { groupBy } from 'lodash'
-import { useStore as useUserStore } from './user'
 import annotations from '~/assets/annotations.json'
+import { useStore as useUserStore } from './user'
 
 export enum AnnotationType {
   Classification = 'Classification',
@@ -69,13 +69,13 @@ export const useStore = defineStore('annotation', {
         && d.subject === subject
         && (
           ((value === Category.Vis || value === Category.NotVis)
-          && (d.value === Category.Vis || d.value === Category.NotVis))
+            && (d.value === Category.Vis || d.value === Category.NotVis))
           || ((value === Category.Map || value === Category.NotMap)
-          && (d.value === Category.Map || d.value === Category.NotMap))
+            && (d.value === Category.Map || d.value === Category.NotMap))
           || ((value === Category.Text || value === Category.NotText)
-          && (d.value === Category.Text || d.value === Category.NotText))
+            && (d.value === Category.Text || d.value === Category.NotText))
           || ((value === Category.Table || value === Category.NotTable)
-          && (d.value === Category.Table || d.value === Category.NotTable))
+            && (d.value === Category.Table || d.value === Category.NotTable))
         )
       ))
       const replace = index !== -1

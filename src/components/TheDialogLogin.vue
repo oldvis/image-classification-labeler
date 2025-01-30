@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useStore as useUserStore } from '~/stores/user'
 import { useStore as useMessageStore } from '~/stores/message'
+import { useStore as useUserStore } from '~/stores/user'
 
 const dialog = ref(false)
 const userStore = useUserStore()
