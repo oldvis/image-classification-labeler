@@ -41,7 +41,6 @@ const {
     <div class="grow" />
     <button
       btn
-      type="submit"
       class="my-1 flex gap-1 items-center"
       @click="toggleUnlabeledSelector"
     >
@@ -50,7 +49,6 @@ const {
     </button>
     <button
       btn
-      type="submit"
       class="my-1 flex gap-1 items-center"
       @click="toggleLabeledSelector"
     >
@@ -59,7 +57,6 @@ const {
     </button>
     <button
       btn
-      type="submit"
       class="my-1 flex gap-1 items-center"
       @click="toggleUnsureSelector"
     >
