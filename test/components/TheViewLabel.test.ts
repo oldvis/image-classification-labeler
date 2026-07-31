@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import TheViewLabel from '~/components/TheViewLabel.vue'
 import { Category, useStore as useAnnotationStore } from '~/stores/annotation'
+import { useStore as useSelectorStore } from '~/stores/selector'
 import { createTestPinia, resetInterfaceStores } from '../helpers/pinia'
 
 vi.mock('@vueuse/core', async () => {
@@ -77,6 +78,17 @@ describe('theViewLabel interface', () => {
     expect(wrapper.find('.stub-entry').exists()).toBe(true)
     await prev.trigger('click')
     expect(prev.attributes('disabled')).toBeDefined()
+  })
+
+  it('disables next when the filtered match list is exhausted', async () => {
+    const wrapper = mountLabelView()
+    const selectorStore = useSelectorStore()
+    // Keep only one visualization (uuid vis-a) in the matched set
+    selectorStore.addSearchSelector('vis-a')
+    await wrapper.vm.$nextTick()
+
+    const next = wrapper.find('button[title="Show next 1 entries"]')
+    expect(next.attributes('disabled')).toBeDefined()
   })
 
   it('goto first unlabeled jumps past a labeled first entry', async () => {

@@ -257,7 +257,7 @@ const clickCategory = (uuid: string, category: Category): void => {
         <button
           btn
           :title="`Show next ${shownNumber} entries`"
-          :disabled="startIndex + shownNumber >= visualizations.length"
+          :disabled="startIndex + shownNumber >= matched.length"
           @click="showNext(shownNumber)"
         >
           <div>next {{ shownNumber }} {{ shownNumber === 1 ? 'entry' : 'entries' }}</div>
