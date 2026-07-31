@@ -5,7 +5,7 @@ import { useStore as useUserStore } from '~/stores/user'
 
 const dialog = ref(false)
 const userStore = useUserStore()
-const { isSignedIn } = storeToRefs(userStore)
+const { isSignedIn, name: signedInName } = storeToRefs(userStore)
 const { signOut, trySignIn } = userStore
 const { addErrorMessage, addSuccessMessage } = useMessageStore()
 const name = ref('')
@@ -36,7 +36,7 @@ const onClickSignIn = () => {
         v-else
         class="border-x px-2 mx-2 my-auto"
       >
-        Hi, {{ name }}
+        Hi, {{ signedInName }}
         <button
           icon-btn
           class="pl-2"
