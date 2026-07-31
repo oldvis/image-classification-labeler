@@ -15,6 +15,11 @@ jobs:
 
     timeout-minutes: 10
 
+    env:
+      # Keep browser binaries in the workspace so actions/cache can restore them
+      # on every OS (default paths differ between Linux/macOS/Windows).
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+
     strategy:
       matrix:
         node_version: [18.x]
@@ -42,6 +47,25 @@ jobs:
 
       - name: Test
         run: pnpm run test
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ${{ github.workspace }}/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium --with-deps
+
+      # OS packages are not part of the browser cache; reinstall on Linux cache hits.
+      - name: Install Playwright OS deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true' && runner.os == 'Linux'
+        run: pnpm exec playwright install-deps chromium
+
+      - name: E2E
+        run: pnpm run test:e2e
 
       - name: Lint
         env:

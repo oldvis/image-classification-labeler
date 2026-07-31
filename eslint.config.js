@@ -7,7 +7,7 @@ export default antfu(
     ignores: ['src/**/*.json', 'shims.d.ts', 'onelabeler.d.ts'],
   },
   {
-    files: ['src/**/*.vue', 'src/**/*.ts'],
+    files: ['src/**/*.vue', 'src/**/*.ts', 'test/**/*.ts', 'e2e/**/*.ts', 'playwright.config.ts'],
     rules: {
       'arrow-parens': ['error', 'always'],
       'style/arrow-parens': ['error', 'always'],

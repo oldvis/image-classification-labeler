@@ -61,5 +61,7 @@ export default defineConfig({
   // https://github.com/vitest-dev/vitest
   test: {
     environment: 'jsdom',
+    setupFiles: ['./test/setup.ts'],
+    exclude: ['**/node_modules/**', '**/e2e/**', '**/dist/**'],
   },
 })
