@@ -16,4 +16,12 @@ export default antfu(
       'antfu/top-level-function': ['off'],
     },
   },
+  {
+    // @antfu/eslint-config wants trustPolicy: no-downgrade, which currently
+    // blocks install via oxc-resolver trust-downgrade under unplugin-vue-macros.
+    files: ['pnpm-workspace.yaml'],
+    rules: {
+      'pnpm/yaml-enforce-settings': 'off',
+    },
+  },
 )

@@ -22,16 +22,17 @@ jobs:
 
     strategy:
       matrix:
-        node_version: [18.x]
+        # Vite 8 requires Node ^20.19.0 || >=22.12.0
+        node_version: [22.x]
         os: [ubuntu-latest, windows-latest]
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
 
       - name: Set node version to ${{ matrix.node_version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
           cache: pnpm

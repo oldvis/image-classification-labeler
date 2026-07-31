@@ -3,28 +3,58 @@ name: Build and Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install and Build 🔧
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # Vite 8 requires Node ^20.19.0 || >=22.12.0
+          node-version: 22
+          cache: pnpm
+
+      - name: Install and Build
         env:
           # https://stackoverflow.com/questions/38558989/node-js-heap-out-of-memory/66914674#66914674
           NODE_OPTIONS: --max_old_space_size=4096
         run: |
-          npm install -g pnpm
           pnpm install
           pnpm run build
 
+      # SPA fallback for client-side routes under the project Pages base path
       - name: Create 404 Page
         run: cp dist/index.html dist/404.html
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.1.7
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          branch: gh-pages
-          folder: dist
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

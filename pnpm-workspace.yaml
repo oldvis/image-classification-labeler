@@ -2,3 +2,9 @@ allowBuilds:
   '@parcel/watcher': true
   esbuild: true
   vue-demi: true
+minimumReleaseAgeExclude:
+  - '@playwright/test@1.62.1'
+  - '@vue/language-core@3.3.9'
+  - playwright-core@1.62.1
+  - playwright@1.62.1
+  - vue-tsc@3.3.9
