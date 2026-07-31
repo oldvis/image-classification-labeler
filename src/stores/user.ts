@@ -13,7 +13,9 @@ export const useStore = defineStore('user', {
   },
   actions: {
     trySignIn(name: string): boolean {
-      this.name = name
+      const trimmed = name.trim()
+      if (trimmed === '') return false
+      this.name = trimmed
       this.uuid = uuidv4()
       return true
     },

@@ -28,4 +28,21 @@ describe('user store', () => {
     expect(store.uuid).toBeNull()
     expect(store.isSignedIn).toBe(false)
   })
+
+  it('rejects empty or whitespace-only names', () => {
+    const store = useUserStore()
+    expect(store.trySignIn('')).toBe(false)
+    expect(store.trySignIn('   ')).toBe(false)
+    expect(store.isSignedIn).toBe(false)
+    expect(store.name).toBeNull()
+    expect(store.uuid).toBeNull()
+  })
+
+  it('trims and accepts a non-empty name', () => {
+    const store = useUserStore()
+    expect(store.trySignIn('  Ada  ')).toBe(true)
+    expect(store.name).toBe('Ada')
+    expect(store.isSignedIn).toBe(true)
+    expect(store.uuid).toEqual(expect.any(String))
+  })
 })
