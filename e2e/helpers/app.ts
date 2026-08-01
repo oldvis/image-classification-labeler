@@ -24,15 +24,16 @@ export async function stubRemoteImages(page: Page): Promise<void> {
  */
 export async function clearAppStorage(page: Page): Promise<void> {
   await page.addInitScript(() => {
+    const key = (storeId: string): string => `image-classification-labeler:${storeId}`
     window.localStorage.clear()
     window.sessionStorage.clear()
-    window.localStorage.setItem('user', JSON.stringify({
+    window.localStorage.setItem(key('user'), JSON.stringify({
       name: 'e2e',
       uuid: '11111111-1111-4111-8111-111111111111',
     }))
-    window.localStorage.setItem('message', JSON.stringify({ messages: [] }))
-    window.localStorage.setItem('annotation', JSON.stringify({ annotations: [] }))
-    window.localStorage.setItem('selectors', JSON.stringify({ selectors: [] }))
+    window.localStorage.setItem(key('message'), JSON.stringify({ messages: [] }))
+    window.localStorage.setItem(key('annotation'), JSON.stringify({ annotations: [] }))
+    window.localStorage.setItem(key('selectors'), JSON.stringify({ selectors: [] }))
   })
 }
 

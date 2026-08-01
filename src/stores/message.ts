@@ -1,5 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
+import { persistKey } from './persist'
 
 export enum MessageType {
   Success = 'Success',
@@ -38,7 +39,7 @@ export const useStore = defineStore('message', {
       this.messages.splice(index, 1)
     },
   },
-  persist: true,
+  persist: { key: persistKey('message') },
 })
 
 if (import.meta.hot) {

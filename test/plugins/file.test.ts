@@ -30,4 +30,9 @@ describe('file plugin', () => {
 
     await expect(parseJsonFile(file)).resolves.toEqual(payload)
   })
+
+  it('parseJsonFile rejects invalid JSON', async () => {
+    const file = new File(['{'], 'bad.json', { type: 'application/json' })
+    await expect(parseJsonFile(file)).rejects.toThrow()
+  })
 })

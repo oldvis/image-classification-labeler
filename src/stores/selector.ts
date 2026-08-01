@@ -5,6 +5,7 @@ import { isEqual } from 'lodash'
 import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
 import { useStore as useAnnotationStore } from './annotation'
+import { persistKey } from './persist'
 
 export enum SelectorType {
   /** The type of selectors that follow Fuse.js options schema. */
@@ -143,7 +144,7 @@ export const useStore = defineStore('selectors', {
       return kept
     },
   },
-  persist: true,
+  persist: { key: persistKey('selectors') },
 })
 
 if (import.meta.hot) {

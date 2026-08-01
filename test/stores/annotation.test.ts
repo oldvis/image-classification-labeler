@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { Category, useStore as useAnnotationStore } from '~/stores/annotation'
+import { Category, isAnnotationArray, useStore as useAnnotationStore } from '~/stores/annotation'
 import { useStore as useUserStore } from '~/stores/user'
 import { createTestPinia, resetInterfaceStores } from '../helpers/pinia'
 
@@ -82,5 +82,26 @@ describe('annotation store labeling contracts', () => {
     const store = useAnnotationStore()
     store.addClassification('vis-a', Category.Vis)
     expect(store.annotations[0].user).toBeNull()
+  })
+
+  it('isAnnotationArray accepts well-formed rows and rejects junk', () => {
+    expect(isAnnotationArray([{
+      type: 'Classification',
+      uuid: 'a',
+      subject: 'vis-a',
+      user: null,
+      value: 'Vis',
+      time: '2020-01-01T00:00:00.000Z',
+    }])).toBe(true)
+    expect(isAnnotationArray({ nope: true })).toBe(false)
+    expect(isAnnotationArray([{ uuid: 1 }])).toBe(false)
+    expect(isAnnotationArray([{
+      type: 'Classification',
+      uuid: 'a',
+      subject: 'vis-a',
+      user: null,
+      value: 'NotARealCategory',
+      time: '2020-01-01T00:00:00.000Z',
+    }])).toBe(false)
   })
 })

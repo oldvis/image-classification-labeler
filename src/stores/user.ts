@@ -1,5 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
+import { persistKey } from './persist'
 
 export const useStore = defineStore('user', {
   state: () => ({
@@ -24,7 +25,7 @@ export const useStore = defineStore('user', {
       this.uuid = null
     },
   },
-  persist: true,
+  persist: { key: persistKey('user') },
 })
 
 if (import.meta.hot) {

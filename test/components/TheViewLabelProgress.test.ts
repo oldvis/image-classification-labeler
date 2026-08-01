@@ -49,6 +49,25 @@ describe('theViewLabelProgress import/export wiring', () => {
     expect(store.annotations).toEqual(uploaded)
   })
 
+  it('upload button keeps existing annotations when payload is invalid', async () => {
+    const pinia = createTestPinia()
+    resetInterfaceStores()
+    const store = useAnnotationStore()
+    const existing = [makeAnnotation('vis-a', Category.Vis)]
+    store.annotations = existing
+
+    vi.spyOn(filePlugin, 'uploadJsonFile').mockResolvedValue({ nope: true })
+
+    const wrapper = mount(TheViewLabelProgress, {
+      global: { plugins: [pinia] },
+    })
+
+    await wrapper.findAll('button').find((b) => b.text() === 'upload')!.trigger('click')
+    await Promise.resolve()
+
+    expect(store.annotations).toEqual(existing)
+  })
+
   it('renders category progress counts from the store', () => {
     const pinia = createTestPinia()
     resetInterfaceStores()

@@ -1,5 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { visualizations } from '~/plugins/visualization'
+import { persistKey } from './persist'
 
 const getFrequencies = (
   values: string[],
@@ -42,7 +43,7 @@ export const useStore = defineStore('visualizations', {
       return Object.keys(this.sourceFrequencies)
     },
   },
-  persist: true,
+  persist: { key: persistKey('visualizations') },
 })
 
 if (import.meta.hot) {

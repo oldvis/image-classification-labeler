@@ -9,30 +9,38 @@ export const saveJsonFile = (
   saveAs(blob, filename)
 }
 
-export const parseJsonFile = (file: File): Promise<unknown> => {
-  const promise = new Promise((resolve) => {
+export const parseJsonFile = (file: File): Promise<unknown> => (
+  new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (event) => {
-      const { result } = event.target as FileReader
-      const parsedObject = JSON.parse(result as string) as unknown
-      resolve(parsedObject)
+      try {
+        const { result } = event.target as FileReader
+        resolve(JSON.parse(result as string) as unknown)
+      }
+      catch (error) {
+        reject(error)
+      }
     }
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read file'))
     reader.readAsText(file)
-  }) as Promise<unknown>
-  return promise
-}
+  })
+)
 
-export const uploadJsonFile = () => new Promise((resolve) => {
+export const uploadJsonFile = () => new Promise<unknown>((resolve, reject) => {
   const input = document.createElement('input')
   input.type = 'file'
-  input.onchange = (e) => {
+  input.onchange = async (e) => {
     const target = e.target as HTMLInputElement
     if (target.files === null) {
       resolve(null)
       return
     }
-    const file = target.files[0]
-    resolve(parseJsonFile(file))
+    try {
+      resolve(await parseJsonFile(target.files[0]))
+    }
+    catch (error) {
+      reject(error)
+    }
   }
   input.click()
 })

@@ -1,7 +1,9 @@
 import { groupBy } from 'lodash'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
+import { z } from 'zod'
 import annotations from '~/assets/annotations.json'
+import { persistKey } from './persist'
 import { useStore as useUserStore } from './user'
 
 export enum AnnotationType {
@@ -31,10 +33,25 @@ export interface Annotation {
   /** The uuid of the user providing the annotation. */
   user: string | null
   /** The annotation content. */
-  value: unknown
+  value: Category
   /** The time the annotation is finished. */
   time: string
 }
+
+export const annotationSchema = z.object({
+  type: z.enum(AnnotationType),
+  uuid: z.string().min(1),
+  subject: z.string().min(1),
+  user: z.string().nullable(),
+  value: z.enum(Category),
+  time: z.string().min(1),
+})
+
+export const annotationsSchema = z.array(annotationSchema)
+
+export const isAnnotationArray = (value: unknown): value is Annotation[] => (
+  annotationsSchema.safeParse(value).success
+)
 
 export const useStore = defineStore('annotation', {
   state: () => ({
@@ -109,7 +126,7 @@ export const useStore = defineStore('annotation', {
       return this.labeledUuids.has(uuid)
     },
   },
-  persist: true,
+  persist: { key: persistKey('annotation') },
 })
 
 if (import.meta.hot) {

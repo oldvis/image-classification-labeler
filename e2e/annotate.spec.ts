@@ -6,8 +6,8 @@ const classificationValuesForSubject = async (
   subjectIndex = 0,
 ): Promise<string[]> => {
   return page.evaluate((index) => {
-    const rawVis = window.localStorage.getItem('visualizations')
-    const rawAnn = window.localStorage.getItem('annotation')
+    const rawVis = window.localStorage.getItem('image-classification-labeler:visualizations')
+    const rawAnn = window.localStorage.getItem('image-classification-labeler:annotation')
     if (!rawAnn) {
       return []
     }

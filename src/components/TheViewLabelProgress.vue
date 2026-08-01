@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import type { Annotation } from '~/stores/annotation'
 import { groupBy } from 'lodash'
 import { storeToRefs } from 'pinia'
 import { saveJsonFile, uploadJsonFile } from '~/plugins/file'
-import { AnnotationType, Category, useStore as useAnnotationStore } from '~/stores/annotation'
+import { AnnotationType, Category, isAnnotationArray, useStore as useAnnotationStore } from '~/stores/annotation'
+import { useStore as useMessageStore } from '~/stores/message'
 import { useStore as useVisStore } from '~/stores/visualization'
 
 const annotationStore = useAnnotationStore()
 const { annotations, labeledUuids } = storeToRefs(annotationStore)
 const { visualizations } = storeToRefs(useVisStore())
+const { addErrorMessage, addSuccessMessage } = useMessageStore()
 
 // Group classification labels by value.
 const labelsByValue = computed(() => {
@@ -33,7 +34,19 @@ const save = () => {
   saveJsonFile(annotations.value, 'annotations.json')
 }
 const upload = async () => {
-  annotations.value = (await uploadJsonFile()) as Annotation[]
+  try {
+    const data = await uploadJsonFile()
+    if (data === null) return
+    if (!isAnnotationArray(data)) {
+      addErrorMessage('Upload failed: file is not an annotations array')
+      return
+    }
+    annotations.value = data
+    addSuccessMessage('Annotations uploaded')
+  }
+  catch {
+    addErrorMessage('Upload failed: invalid JSON')
+  }
 }
 </script>
 
