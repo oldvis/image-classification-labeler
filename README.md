@@ -6,7 +6,7 @@
 
 A web-based data labeling interface for old visualization images ([live demo](https://oldvis.github.io/image-classification-labeler/)).
 
-The user can assign classification labels in ['Vis', 'NotVis', 'Map', 'NotMap', 'Table', 'NotTable'].
+The user can assign classification labels: `Vis` / `NotVis`, `Map` / `NotMap`, `Text` / `NotText`, `Table` / `NotTable`, plus `Unsure` / `Confident`.
 
 ## Development Instructions
 

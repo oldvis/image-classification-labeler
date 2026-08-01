@@ -2,9 +2,13 @@ import antfu from '@antfu/eslint-config'
 
 export default antfu(
   {
-    vue: true,
-    typescript: true,
-    ignores: ['src/**/*.json', 'shims.d.ts', 'onelabeler.d.ts'],
+    unocss: true,
+    formatters: true,
+    pnpm: true,
+    ignores: [
+      'src/**/*.json',
+      'e2e/fixtures/**',
+    ],
   },
   {
     files: ['src/**/*.vue', 'src/**/*.ts', 'test/**/*.ts', 'e2e/**/*.ts', 'playwright.config.ts'],

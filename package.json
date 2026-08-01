@@ -55,11 +55,5 @@
     "vite-plugin-pages": "^0.33.3",
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.9"
-  },
-  "eslintConfig": {
-    "extends": [
-      "@antfu",
-      "@unocss"
-    ]
   }
 }
