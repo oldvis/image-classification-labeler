@@ -37,7 +37,7 @@ const isHttps = (url: string | null | undefined): boolean => {
 
 <template>
   <div
-    class="p-1 text-sm"
+    class="text-sm p-1"
     bg="slate-100 dark:slate-900"
     border="~ gray-200 rounded"
   >

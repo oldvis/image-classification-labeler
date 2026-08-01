@@ -28,13 +28,13 @@ watch(show, (d) => {
 
 <template>
   <div
-    class="flex gap-2 items-center w-full max-w-xs p-2 rounded shadow"
+    class="p-2 rounded flex gap-2 max-w-xs w-full shadow items-center"
     bg="white dark:gray-800"
     text="gray-500 dark:gray-400"
   >
     <div
       v-if="message.type === MessageType.Success"
-      class="inline-flex items-center justify-center p-2 w-8 h-8 rounded"
+      class="p-2 rounded inline-flex h-8 w-8 items-center justify-center"
       bg="green-100 dark:green-800"
       text="green-500 dark:green-200"
     >
@@ -42,7 +42,7 @@ watch(show, (d) => {
     </div>
     <div
       v-if="message.type === MessageType.Error"
-      class="inline-flex items-center justify-center p-2 w-8 h-8 rounded"
+      class="p-2 rounded inline-flex h-8 w-8 items-center justify-center"
       bg="orange-100 dark:orange-700"
       text="orange-500 dark:orange-200"
     >

@@ -8,6 +8,7 @@ export default antfu(
     ignores: [
       'src/**/*.json',
       'e2e/fixtures/**',
+      'docs/**',
     ],
   },
   {

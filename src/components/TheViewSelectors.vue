@@ -17,7 +17,7 @@ const {
     class="flex gap-1"
     border="~ gray-200"
   >
-    <div class="p-1 flex gap-1 text-sm">
+    <div class="text-sm p-1 flex gap-1">
       <div class="i-fa6-solid:filter my-auto" />
       <div class="font-bold my-auto">
         Selectors

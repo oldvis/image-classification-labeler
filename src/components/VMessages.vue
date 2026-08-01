@@ -12,7 +12,7 @@ const onClose = (uuid: string): void => {
 
 <template>
   <div
-    class="fixed w-screen h-screen items-end justify-end pointer-events-none z-2"
+    class="h-screen w-screen pointer-events-none items-end justify-end fixed z-2"
     flex="~ col"
   >
     <VMessage

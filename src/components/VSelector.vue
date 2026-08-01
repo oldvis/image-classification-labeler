@@ -44,7 +44,7 @@ const text = computed(() => {
 </script>
 
 <template>
-  <div class="border border-gray-200 flex gap-1 px-1">
+  <div class="px-1 border border-gray-200 flex gap-1">
     {{ text }}
     <button
       icon-btn

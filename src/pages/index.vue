@@ -6,7 +6,7 @@ useSignInNotice()
 
 <template>
   <div
-    class="grow overflow-auto m-1 gap-1"
+    class="m-1 grow gap-1 overflow-auto"
     flex="~ col"
   >
     <TheViewSelectors />

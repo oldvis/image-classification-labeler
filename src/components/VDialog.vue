@@ -7,7 +7,7 @@ const { dialog } = defineProps<{ dialog: boolean }>()
   <Teleport to="#app">
     <div
       v-if="dialog"
-      class="fixed w-full h-full flex z-1"
+      class="flex h-full w-full fixed z-1"
       bg="gray opacity-50"
     >
       <div class="m-auto">

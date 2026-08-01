@@ -1,5 +1,5 @@
 <template>
-  <div class="m-auto text-4xl">
+  <div class="text-4xl m-auto">
     404 Not Found
   </div>
 </template>

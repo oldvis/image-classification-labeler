@@ -52,16 +52,16 @@ const upload = async () => {
 
 <template>
   <div
-    class="flex gap-1 px-1"
+    class="px-1 flex gap-1"
     border="~ gray-200"
   >
-    <div class="flex gap-1 text-sm">
+    <div class="text-sm flex gap-1">
       <div class="i-fa6-solid:list-check my-auto" />
       <div class="font-bold my-auto">
         Progress
       </div>
     </div>
-    <div class="flex gap-1 text-sm grow">
+    <div class="text-sm flex grow gap-1">
       <template
         v-for="(d, i) in [
           { title: '#Vis/Not:', value: `${nVis} / ${nNotVis}` },
@@ -73,17 +73,17 @@ const upload = async () => {
           { title: '#Confident:', value: `${nConfident}` },
         ]" :key="d.title"
       >
-        <div v-if="i === 0" class="border-l border-gray-200 my-1" />
-        <div class="flex gap-1 my-auto grow">
+        <div v-if="i === 0" class="my-1 border-l border-gray-200" />
+        <div class="my-auto flex grow gap-1">
           {{ d.title }}
           <div class="font-bold">
             {{ d.value }}
           </div>
         </div>
-        <div class="border-l border-gray-200 my-1" />
+        <div class="my-1 border-l border-gray-200" />
       </template>
     </div>
-    <div class="flex gap-1 my-1">
+    <div class="my-1 flex gap-1">
       <button btn @click="save">
         download
       </button>

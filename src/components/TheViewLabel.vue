@@ -98,7 +98,7 @@ const clickCategory = (uuid: string, category: Category): void => {
         Entries
       </div>
       <div class="grow" />
-      <div class="text-sm my-auto flex pr-4">
+      <div class="text-sm my-auto pr-4 flex">
         <div class="font-bold">
           {{ nInPageLabeled }}/{{ shown.length }}&nbsp;
         </div>
@@ -106,14 +106,14 @@ const clickCategory = (uuid: string, category: Category): void => {
       </div>
       <div
         v-if="selectors.length !== 0"
-        class="text-sm my-auto flex pr-4"
+        class="text-sm my-auto pr-4 flex"
       >
         #matched:&nbsp;
         <div class="font-bold">
           {{ matched.length }}
         </div>
       </div>
-      <div class="text-sm my-auto flex pr-4">
+      <div class="text-sm my-auto pr-4 flex">
         #entries:&nbsp;
         <div class="font-bold">
           {{ visualizations.length }}
@@ -123,20 +123,20 @@ const clickCategory = (uuid: string, category: Category): void => {
     <div
       v-if="shown.length !== 0"
       ref="content"
-      class="overflow-auto scroll-smooth"
+      class="scroll-smooth overflow-auto"
     >
       <VDataEntry
         v-for="(d, i) in shown"
         :key="d.uuid"
         :datum="d"
         :index="startIndex + i + 1"
-        class="flex-1 basis-4/5 m-1"
+        class="m-1 flex-1 basis-4/5"
       >
-        <div class="my-2 flex w-100 flex-col gap-2">
+        <div class="my-2 flex flex-col gap-2 w-100">
           <div class="flex gap-2">
             <button
               btn
-              class="text-xl flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               title="This is a visualization"
               :ring="isClassified(d.uuid, Category.Vis) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, Category.Vis)"
@@ -146,7 +146,7 @@ const clickCategory = (uuid: string, category: Category): void => {
             </button>
             <button
               btn-warn
-              class="text-xl flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               title="This is not a visualization"
               :ring="isClassified(d.uuid, Category.NotVis) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, Category.NotVis)"
@@ -158,7 +158,7 @@ const clickCategory = (uuid: string, category: Category): void => {
           <div class="flex gap-2">
             <button
               btn
-              class="text-xl  flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               title="This is a map"
               :ring="isClassified(d.uuid, Category.Map) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, Category.Map)"
@@ -168,7 +168,7 @@ const clickCategory = (uuid: string, category: Category): void => {
             </button>
             <button
               btn-warn
-              class="text-xl flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               title="This is not a map"
               :ring="isClassified(d.uuid, Category.NotMap) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, Category.NotMap)"
@@ -180,7 +180,7 @@ const clickCategory = (uuid: string, category: Category): void => {
           <div class="flex gap-2">
             <button
               btn
-              class="text-xl flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               title="This is mainly a text block"
               :ring="isClassified(d.uuid, Category.Text) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, Category.Text)"
@@ -190,7 +190,7 @@ const clickCategory = (uuid: string, category: Category): void => {
             </button>
             <button
               btn-warn
-              class="text-xl flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               title="This is not a mainly a text block"
               :ring="isClassified(d.uuid, Category.NotText) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, Category.NotText)"
@@ -202,7 +202,7 @@ const clickCategory = (uuid: string, category: Category): void => {
           <div class="flex gap-2">
             <button
               btn
-              class="text-xl flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               title="This is mainly a table"
               :ring="isClassified(d.uuid, Category.Table) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, Category.Table)"
@@ -212,7 +212,7 @@ const clickCategory = (uuid: string, category: Category): void => {
             </button>
             <button
               btn-warn
-              class="text-xl flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               title="This is not a mainly a table"
               :ring="isClassified(d.uuid, Category.NotTable) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, Category.NotTable)"
@@ -224,7 +224,7 @@ const clickCategory = (uuid: string, category: Category): void => {
           <div class="flex gap-2">
             <button
               btn-neutral
-              class="text-xl flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               title="Not sure if the annotation is accurate"
               :ring="isClassified(d.uuid, Category.Unsure) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, Category.Unsure)"
@@ -234,7 +234,7 @@ const clickCategory = (uuid: string, category: Category): void => {
             </button>
             <button
               btn-neutral
-              class="text-xl flex-1 flex gap-2 items-center"
+              class="text-xl flex flex-1 gap-2 items-center"
               bg="blue-400 hover:blue-500"
               :ring="isClassified(d.uuid, Category.Confident) ? '2 black dark:white' : ''"
               title="Confident that the annotation is accurate"
@@ -245,7 +245,7 @@ const clickCategory = (uuid: string, category: Category): void => {
           </div>
         </div>
       </VDataEntry>
-      <div class="m-1 gap-1 flex">
+      <div class="m-1 flex gap-1">
         <button
           btn
           :title="`Show previous ${shownNumber} entries`"
@@ -273,7 +273,7 @@ const clickCategory = (uuid: string, category: Category): void => {
     </div>
     <div
       v-else
-      class="m-auto text-xl"
+      class="text-xl m-auto"
     >
       No Entries Matched
     </div>
