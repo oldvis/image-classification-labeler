@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import TheAnnotatePage from './annotate/index.vue'
+import { useSignInNotice } from '~/composables/useSignInNotice'
+
+useSignInNotice()
 </script>
 
 <template>
-  <TheAnnotatePage />
+  <div
+    class="grow overflow-auto m-1 gap-1"
+    flex="~ col"
+  >
+    <TheViewSelectors />
+    <TheViewLabel class="grow" />
+    <TheViewLabelProgress />
+  </div>
 </template>
