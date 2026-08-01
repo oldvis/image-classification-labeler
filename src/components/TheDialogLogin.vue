@@ -27,14 +27,14 @@ const onClickSignIn = () => {
       <button
         v-if="!isSignedIn"
         icon-btn
-        class="border-x px-2 mx-2"
+        class="border-x border-gray-200 px-2 mx-2"
         @click="dialog = !dialog"
       >
         Sign in
       </button>
       <div
         v-else
-        class="border-x px-2 mx-2 my-auto"
+        class="border-x border-gray-200 px-2 mx-2 my-auto"
       >
         Hi, {{ signedInName }}
         <button

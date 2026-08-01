@@ -73,14 +73,14 @@ const upload = async () => {
           { title: '#Confident:', value: `${nConfident}` },
         ]" :key="d.title"
       >
-        <div v-if="i === 0" class="border-l my-1" />
+        <div v-if="i === 0" class="border-l border-gray-200 my-1" />
         <div class="flex gap-1 my-auto grow">
           {{ d.title }}
           <div class="font-bold">
             {{ d.value }}
           </div>
         </div>
-        <div class="border-l my-1" />
+        <div class="border-l border-gray-200 my-1" />
       </template>
     </div>
     <div class="flex gap-1 my-1">

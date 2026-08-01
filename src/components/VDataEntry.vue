@@ -127,7 +127,7 @@ const isHttps = (url: string | null | undefined): boolean => {
         </div>
         <div
           v-if="showMetadata"
-          class="border"
+          class="border border-gray-200"
         >
           <VObjectInspector
             :data="datum"

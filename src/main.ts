@@ -5,7 +5,6 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 
-import '@unocss/reset/tailwind.css'
 import './styles/main.css'
 import './styles/scrollbar.css'
 import 'uno.css'

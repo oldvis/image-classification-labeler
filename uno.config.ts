@@ -2,8 +2,7 @@ import {
   defineConfig,
   presetAttributify,
   presetIcons,
-  presetUno,
-  presetWebFonts,
+  presetWind4,
 } from 'unocss'
 
 export default defineConfig({
@@ -18,18 +17,11 @@ export default defineConfig({
     ['input-area', 'px-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded'],
   ],
   presets: [
-    presetUno(),
+    presetWind4(),
     presetAttributify(),
     presetIcons({
       scale: 1.2,
       warn: true,
-    }),
-    presetWebFonts({
-      fonts: {
-        sans: 'DM Sans',
-        serif: 'DM Serif Display',
-        mono: 'DM Mono',
-      },
     }),
   ],
 })
