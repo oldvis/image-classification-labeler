@@ -1,6 +1,5 @@
+import type { Visualization } from '~/plugins/visualization'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { visualizations } from '~/plugins/visualization'
-import { persistKey } from './persist'
 
 const getFrequencies = (
   values: string[],
@@ -13,7 +12,9 @@ const getFrequencies = (
 }
 
 export const useStore = defineStore('visualizations', {
-  state: () => ({ visualizations }),
+  state: () => ({
+    visualizations: [] as Visualization[],
+  }),
   getters: {
     tagFrequencies: (state): Record<string, number> => {
       return getFrequencies(([] as string[])
@@ -43,7 +44,6 @@ export const useStore = defineStore('visualizations', {
       return Object.keys(this.sourceFrequencies)
     },
   },
-  persist: { key: persistKey('visualizations') },
 })
 
 if (import.meta.hot) {

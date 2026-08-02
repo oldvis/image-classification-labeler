@@ -1,10 +1,8 @@
 /**
- * Keeps interface tests fast and deterministic before dependency upgrades.
- * Real seed JSON assets are mocked; stores are reset in test helpers.
+ * Keeps interface tests fast and deterministic.
+ * Real seed JSON is loaded only via mocked fetch in plugin tests;
+ * store/UI tests patch Pinia state in helpers.
  */
-import { vi } from 'vitest'
-import { fixtureVisualizations } from './fixtures/visualizations'
-
 const memoryStorage = (() => {
   let store: Record<string, string> = {}
   return {
@@ -21,13 +19,3 @@ Object.defineProperty(globalThis, 'localStorage', {
   value: memoryStorage,
   configurable: true,
 })
-
-vi.mock('~/assets/annotations.json', () => ({ default: [] }))
-vi.mock('~/assets/visualizations.json', () => ({
-  default: fixtureVisualizations.map((d) => ({
-    ...d,
-    // plugin expects raw TimePoint / ISO language codes before mapping
-    publishDate: d.publishDate === null ? null : { year: d.publishDate },
-    languages: ['eng'],
-  })),
-}))

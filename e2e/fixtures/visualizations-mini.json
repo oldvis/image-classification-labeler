@@ -1,0 +1,36 @@
+[
+  {
+    "uuid": "vis-a",
+    "authors": ["Author A"],
+    "displayName": "Alpha Chart",
+    "publishDate": { "year": 1850 },
+    "viewUrl": "https://example.com/view",
+    "downloadUrl": "https://example.com/img.png",
+    "languages": ["eng"],
+    "tags": ["map"],
+    "abstract": null,
+    "rights": "public",
+    "source": {
+      "name": "TestSource",
+      "url": "https://example.com",
+      "accessDate": "2024-01-01"
+    }
+  },
+  {
+    "uuid": "vis-b",
+    "authors": ["Author B"],
+    "displayName": "Beta Table",
+    "publishDate": { "year": 1900 },
+    "viewUrl": "https://example.com/view-b",
+    "downloadUrl": "https://example.com/img-b.png",
+    "languages": ["eng"],
+    "tags": ["table"],
+    "abstract": null,
+    "rights": "public",
+    "source": {
+      "name": "TestSource",
+      "url": "https://example.com",
+      "accessDate": "2024-01-01"
+    }
+  }
+]

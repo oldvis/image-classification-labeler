@@ -2,8 +2,7 @@ import { groupBy } from 'lodash'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
-import annotations from '~/assets/annotations.json'
-import { persistKey } from './persist'
+import annotationsUrl from '~/assets/annotations.json?url'
 import { useStore as useUserStore } from './user'
 
 export enum AnnotationType {
@@ -53,9 +52,29 @@ export const isAnnotationArray = (value: unknown): value is Annotation[] => (
   annotationsSchema.safeParse(value).success
 )
 
+export const loadAnnotations = async (): Promise<Annotation[]> => {
+  const response = await fetch(annotationsUrl)
+  if (!response.ok) {
+    throw new Error(`Failed to load annotations (${response.status})`)
+  }
+  return await response.json() as Annotation[]
+}
+
+/** Whether two classification values are the same replace-pair (Vis/NotVis, …). */
+export const sameClassificationPair = (a: Category, b: Category): boolean => (
+  ((a === Category.Vis || a === Category.NotVis)
+    && (b === Category.Vis || b === Category.NotVis))
+  || ((a === Category.Map || a === Category.NotMap)
+    && (b === Category.Map || b === Category.NotMap))
+  || ((a === Category.Text || a === Category.NotText)
+    && (b === Category.Text || b === Category.NotText))
+  || ((a === Category.Table || a === Category.NotTable)
+    && (b === Category.Table || b === Category.NotTable))
+)
+
 export const useStore = defineStore('annotation', {
   state: () => ({
-    annotations: annotations as Annotation[],
+    annotations: [] as Annotation[],
   }),
   getters: {
     /** The annotations grouped by subject uuid. */
@@ -84,16 +103,7 @@ export const useStore = defineStore('annotation', {
       const index = this.annotations.findIndex((d) => (
         d.type === type
         && d.subject === subject
-        && (
-          ((value === Category.Vis || value === Category.NotVis)
-            && (d.value === Category.Vis || d.value === Category.NotVis))
-          || ((value === Category.Map || value === Category.NotMap)
-            && (d.value === Category.Map || d.value === Category.NotMap))
-          || ((value === Category.Text || value === Category.NotText)
-            && (d.value === Category.Text || d.value === Category.NotText))
-          || ((value === Category.Table || value === Category.NotTable)
-            && (d.value === Category.Table || d.value === Category.NotTable))
-        )
+        && sameClassificationPair(d.value, value)
       ))
       const replace = index !== -1
       const annotation: Annotation = {
@@ -126,7 +136,6 @@ export const useStore = defineStore('annotation', {
       return this.labeledUuids.has(uuid)
     },
   },
-  persist: { key: persistKey('annotation') },
 })
 
 if (import.meta.hot) {

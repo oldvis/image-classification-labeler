@@ -1,5 +1,5 @@
 import { iso6393 } from 'iso-639-3'
-import rawVisualizations from '~/assets/visualizations.json'
+import rawVisualizationsUrl from '~/assets/visualizations.json?url'
 
 interface TimePoint {
   year: number
@@ -64,10 +64,15 @@ const getLanguageFullNames = (languages: string[]): string[] => (
   }).filter((d) => d !== undefined) as string[] ?? []
 )
 
-export const visualizations: Visualization[] = (
-  rawVisualizations as RawVisualization[]
-).map((d) => ({
-  ...d,
-  publishDate: getPublishYear(d.publishDate),
-  languages: getLanguageFullNames(d.languages),
-}))
+export const loadVisualizations = async (): Promise<Visualization[]> => {
+  const response = await fetch(rawVisualizationsUrl)
+  if (!response.ok) {
+    throw new Error(`Failed to load visualizations (${response.status})`)
+  }
+  const rawVisualizations = await response.json() as RawVisualization[]
+  return rawVisualizations.map((d) => ({
+    ...d,
+    publishDate: getPublishYear(d.publishDate),
+    languages: getLanguageFullNames(d.languages),
+  }))
+}

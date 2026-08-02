@@ -30,6 +30,7 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.vue",
+    "test/**/*.ts",
     "auto-imports.d.ts",
     "components.d.ts",
     "shims.d.ts"

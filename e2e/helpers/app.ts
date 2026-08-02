@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const tinyPng = path.resolve(__dirname, '../fixtures/tiny.png')
+const miniVisualizations = path.resolve(__dirname, '../fixtures/visualizations-mini.json')
 
 /** Stub remote image fetches with a local PNG. */
 export async function stubRemoteImages(page: Page): Promise<void> {
@@ -20,7 +21,6 @@ export async function stubRemoteImages(page: Page): Promise<void> {
 /**
  * Reset persisted Pinia state.
  * Pre-sign-in so `useSignInNotice` does not leave an infinite error toast.
- * Start with empty annotations so labeling assertions are deterministic.
  */
 export async function clearAppStorage(page: Page): Promise<void> {
   await page.addInitScript(() => {
@@ -32,13 +32,51 @@ export async function clearAppStorage(page: Page): Promise<void> {
       uuid: '11111111-1111-4111-8111-111111111111',
     }))
     window.localStorage.setItem(key('message'), JSON.stringify({ messages: [] }))
-    window.localStorage.setItem(key('annotation'), JSON.stringify({ annotations: [] }))
     window.localStorage.setItem(key('selectors'), JSON.stringify({ selectors: [] }))
+  })
+}
+
+/** Vite `*.json?url` resolves via `?import` module requests — never stub those. */
+const isViteJsonUrlImport = (url: string): boolean => {
+  try {
+    return new URL(url).searchParams.has('import')
+  }
+  catch {
+    return false
+  }
+}
+
+/**
+ * Keep e2e fast/deterministic: tiny visualization catalog + empty annotation seed.
+ * Only intercepts runtime `fetch()` of the JSON assets, not Vite's `?url` module graph.
+ */
+export async function stubDatasetJson(page: Page): Promise<void> {
+  await page.route(/annotations(?:-[^/]+)?\.json(?:\?.*)?$/, async (route) => {
+    if (isViteJsonUrlImport(route.request().url())) {
+      await route.continue()
+      return
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: '[]',
+    })
+  })
+  await page.route(/visualizations(?:-[^/]+)?\.json(?:\?.*)?$/, async (route) => {
+    if (isViteJsonUrlImport(route.request().url())) {
+      await route.continue()
+      return
+    }
+    await route.fulfill({
+      path: miniVisualizations,
+      contentType: 'application/json',
+    })
   })
 }
 
 export async function openAnnotateApp(page: Page): Promise<void> {
   await clearAppStorage(page)
+  await stubDatasetJson(page)
   await stubRemoteImages(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')

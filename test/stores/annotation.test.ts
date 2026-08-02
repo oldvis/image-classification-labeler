@@ -1,12 +1,42 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { Category, isAnnotationArray, useStore as useAnnotationStore } from '~/stores/annotation'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  Category,
+  isAnnotationArray,
+  loadAnnotations,
+  useStore as useAnnotationStore,
+} from '~/stores/annotation'
 import { useStore as useUserStore } from '~/stores/user'
+import { makeAnnotation } from '../fixtures/annotations'
 import { createTestPinia, resetInterfaceStores } from '../helpers/pinia'
+
+describe('loadAnnotations', () => {
+  beforeEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('fetches and returns the JSON array', async () => {
+    const seed = [makeAnnotation('vis-a', Category.Vis)]
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => seed,
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(loadAnnotations()).resolves.toEqual(seed)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('throws when the response is not ok', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 500 })))
+    await expect(loadAnnotations()).rejects.toThrow(/500/)
+  })
+})
 
 describe('annotation store labeling contracts', () => {
   beforeEach(() => {
     createTestPinia()
     resetInterfaceStores()
+    vi.unstubAllGlobals()
   })
 
   it('adds a classification and marks the subject labeled', () => {
