@@ -84,10 +84,18 @@ const upload = async () => {
       </template>
     </div>
     <div class="my-1 flex gap-1">
-      <button btn @click="save">
+      <button
+        btn
+        title="Download annotations.json (not saved in the browser)"
+        @click="save"
+      >
         download
       </button>
-      <button btn @click="upload">
+      <button
+        btn
+        title="Upload annotations.json (replaces current annotations)"
+        @click="upload"
+      >
         upload
       </button>
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onKeyStroke, useElementVisibility } from '@vueuse/core'
+import { isFocusedElementEditable, onKeyStroke, useElementVisibility } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import {
   AnnotationType,
@@ -87,12 +87,21 @@ const gotoUnlabeled = (): void => {
 
 const container = ref<HTMLDivElement | null>(null)
 const isVisible = useElementVisibility(container)
-onKeyStroke('a', () => {
-  if (isVisible.value === false) return
+
+const shouldHandleNavKey = (event: KeyboardEvent): boolean => (
+  isVisible.value
+  && !event.metaKey
+  && !event.ctrlKey
+  && !event.altKey
+  && !isFocusedElementEditable()
+)
+
+onKeyStroke('a', (event) => {
+  if (!shouldHandleNavKey(event)) return
   showNext(-shownNumber.value)
 })
-onKeyStroke('d', () => {
-  if (isVisible.value === false) return
+onKeyStroke('d', (event) => {
+  if (!shouldHandleNavKey(event)) return
   showNext(shownNumber.value)
 })
 

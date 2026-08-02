@@ -117,6 +117,28 @@ describe('theViewLabel interface', () => {
     expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
   })
 
+  it('ignores a/d while an input is focused or a modifier is held', async () => {
+    const wrapper = mountLabelView()
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
+
+    const input = document.createElement('input')
+    document.body.appendChild(input)
+    input.focus()
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'd', bubbles: true }))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
+    input.blur()
+    input.remove()
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd', metaKey: true }))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd', ctrlKey: true }))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
+  })
+
   it('pressing d at the last entry stays on the last entry', async () => {
     const wrapper = mountLabelView()
     const selectorStore = useSelectorStore()
