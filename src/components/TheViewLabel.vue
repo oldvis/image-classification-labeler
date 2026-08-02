@@ -18,7 +18,7 @@ const matched = computed(() => (
   selectorStore.applySelectors(visualizations.value)
 ))
 
-const content = ref<HTMLDivElement>()
+const content = ref<HTMLDivElement | null>(null)
 /** The number of shown visualizations. */
 const shownNumber = ref(1)
 /** The start index of shown visualizations. */
@@ -30,11 +30,26 @@ const shown = computed(() => (
     startIndex.value + shownNumber.value,
   )
 ))
+
+const maxStartIndex = computed(() => (
+  Math.max(0, matched.value.length - shownNumber.value)
+))
+
+const clampStartIndex = (): void => {
+  if (startIndex.value > maxStartIndex.value) {
+    startIndex.value = maxStartIndex.value
+  }
+}
+
+watch(matched, clampStartIndex)
+
 /** Show n more entries. */
 const showNext = (n: number): void => {
-  const result = startIndex.value + n
-  startIndex.value = Math.min(Math.max(0, result), matched.value.length)
-  if (content.value !== undefined) {
+  startIndex.value = Math.min(
+    Math.max(0, startIndex.value + n),
+    maxStartIndex.value,
+  )
+  if (content.value !== null) {
     content.value.scrollTop = 0
   }
 }
@@ -64,13 +79,13 @@ const gotoUnlabeled = (): void => {
   const index = matched.value.findIndex((d) => !isLabeled(d.uuid))
   if (index !== -1) {
     startIndex.value = index
-    if (content.value !== undefined) {
+    if (content.value !== null) {
       content.value.scrollTop = 0
     }
   }
 }
 
-const container = ref<HTMLDivElement>()
+const container = ref<HTMLDivElement | null>(null)
 const isVisible = useElementVisibility(container)
 onKeyStroke('a', () => {
   if (isVisible.value === false) return

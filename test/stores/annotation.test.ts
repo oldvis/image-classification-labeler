@@ -30,6 +30,14 @@ describe('loadAnnotations', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 500 })))
     await expect(loadAnnotations()).rejects.toThrow(/500/)
   })
+
+  it('throws when JSON is not a valid annotations array', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ nope: true }),
+    })))
+    await expect(loadAnnotations()).rejects.toThrow(/invalid annotations/i)
+  })
 })
 
 describe('annotation store labeling contracts', () => {

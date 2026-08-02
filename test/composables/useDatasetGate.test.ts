@@ -80,4 +80,24 @@ describe('useDatasetGate', () => {
     await loadDatasets()
     expect(loadVisualizations).not.toHaveBeenCalled()
   })
+
+  it('sets error when annotation load fails and retries successfully', async () => {
+    const seed = [makeAnnotation('vis-a', Category.Vis)]
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 503 })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => seed,
+      })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { error, loadDatasets } = useDatasetGate()
+    await loadDatasets()
+    expect(error.value).toMatch(/503/)
+    expect(useAnnotationStore().annotations).toEqual([])
+
+    await loadDatasets()
+    expect(error.value).toBeNull()
+    expect(useAnnotationStore().annotations).toEqual(seed)
+  })
 })

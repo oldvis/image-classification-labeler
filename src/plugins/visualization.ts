@@ -1,36 +1,48 @@
 import { iso6393 } from 'iso-639-3'
+import { z } from 'zod'
 import rawVisualizationsUrl from '~/assets/visualizations.json?url'
 
-interface TimePoint {
-  year: number
-  month?: number
-  day?: number
-}
+const timePointSchema = z.object({
+  year: z.number(),
+  month: z.number().optional(),
+  day: z.number().optional(),
+})
 
-interface RawVisualization {
-  uuid: string
-  authors: string[] | null
+const rawVisualizationSchema = z.object({
+  uuid: z.string().min(1),
+  authors: z.array(z.string()).nullable(),
+  displayName: z.string().nullable(),
+  publishDate: z.union([
+    timePointSchema,
+    z.tuple([timePointSchema, timePointSchema]),
+  ]).nullable(),
+  viewUrl: z.string(),
+  downloadUrl: z.string(),
+  md5: z.string().optional(),
+  phash: z.string().optional(),
+  resolution: z.tuple([z.number(), z.number()]).optional(),
+  fileSize: z.number().optional(),
+  languages: z.array(z.string()).nullable(),
+  tags: z.array(z.string()),
+  abstract: z.string().nullable(),
+  rights: z.string(),
+  source: z.object({
+    name: z.string(),
+    url: z.string(),
+    accessDate: z.string(),
+  }),
+})
+
+const rawVisualizationsSchema = z.array(rawVisualizationSchema)
+
+type RawVisualization = z.infer<typeof rawVisualizationSchema>
+
+export interface Visualization extends Omit<
+  RawVisualization,
+  'publishDate' | 'languages' | 'displayName'
+> {
+  /** Null in the raw asset is normalized to empty string. */
   displayName: string
-  publishDate: TimePoint | [TimePoint, TimePoint] | null
-  viewUrl: string
-  downloadUrl: string
-  md5?: string
-  phash?: string
-  resolution?: [number, number]
-  fileSize?: number
-  languages: string[]
-  tags: string[]
-  abstract: string | null
-  rights: string
-  source: {
-    name: string
-    url: string
-    /** In ISO format */
-    accessDate: string
-  }
-}
-
-export interface Visualization extends Omit<RawVisualization, 'publishDate' | 'languages'> {
   /** Originally stored as { year: number }. Converted to integer. */
   publishDate: number | null
   /** Originally stored in ISO format. Converted to full name. */
@@ -48,7 +60,7 @@ const iso6393ToName: Record<string, string> = {
 }
 
 const getPublishYear = (
-  publishDate: TimePoint | [TimePoint, TimePoint] | null,
+  publishDate: RawVisualization['publishDate'],
 ): number | null => {
   if (publishDate === null) return null
   if (Array.isArray(publishDate)) return publishDate[0].year
@@ -69,10 +81,14 @@ export const loadVisualizations = async (): Promise<Visualization[]> => {
   if (!response.ok) {
     throw new Error(`Failed to load visualizations (${response.status})`)
   }
-  const rawVisualizations = await response.json() as RawVisualization[]
-  return rawVisualizations.map((d) => ({
+  const parsed = rawVisualizationsSchema.safeParse(await response.json())
+  if (!parsed.success) {
+    throw new Error('Failed to load visualizations: invalid visualizations JSON')
+  }
+  return parsed.data.map((d) => ({
     ...d,
+    displayName: d.displayName ?? '',
     publishDate: getPublishYear(d.publishDate),
-    languages: getLanguageFullNames(d.languages),
+    languages: getLanguageFullNames(d.languages ?? []),
   }))
 }

@@ -31,7 +31,6 @@ export async function clearAppStorage(page: Page): Promise<void> {
       name: 'e2e',
       uuid: '11111111-1111-4111-8111-111111111111',
     }))
-    window.localStorage.setItem(key('message'), JSON.stringify({ messages: [] }))
     window.localStorage.setItem(key('selectors'), JSON.stringify({ selectors: [] }))
   })
 }
@@ -46,14 +45,29 @@ const isViteJsonUrlImport = (url: string): boolean => {
   }
 }
 
+interface StubDatasetJsonOptions {
+  /** Absolute path to an annotations JSON fixture. Defaults to an empty array. */
+  annotationsPath?: string
+}
+
 /**
- * Keep e2e fast/deterministic: tiny visualization catalog + empty annotation seed.
+ * Keep e2e fast/deterministic: tiny visualization catalog + annotation seed stub.
  * Only intercepts runtime `fetch()` of the JSON assets, not Vite's `?url` module graph.
  */
-export async function stubDatasetJson(page: Page): Promise<void> {
+export async function stubDatasetJson(
+  page: Page,
+  options: StubDatasetJsonOptions = {},
+): Promise<void> {
   await page.route(/annotations(?:-[^/]+)?\.json(?:\?.*)?$/, async (route) => {
     if (isViteJsonUrlImport(route.request().url())) {
       await route.continue()
+      return
+    }
+    if (options.annotationsPath !== undefined) {
+      await route.fulfill({
+        path: options.annotationsPath,
+        contentType: 'application/json',
+      })
       return
     }
     await route.fulfill({

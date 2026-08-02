@@ -41,4 +41,16 @@ test.describe('annotate smokes', () => {
     await page.keyboard.press('d')
     await expect(page.getByText('0/1')).toBeVisible()
   })
+
+  test('reload drops in-session labels and reseeds from annotations JSON', async ({ page }) => {
+    await openAnnotateApp(page)
+    const vis = page.getByRole('button', { name: 'Vis', exact: true })
+    await vis.click()
+    await expect(page.getByText('1/1')).toBeVisible()
+
+    await page.reload()
+    await page.getByText('Entries', { exact: true }).waitFor({ state: 'visible', timeout: 60_000 })
+    await expect(page.getByText('0/1')).toBeVisible()
+    await expect(vis).not.toHaveAttribute('ring', '2 black dark:white')
+  })
 })

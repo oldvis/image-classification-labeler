@@ -22,7 +22,7 @@ const mountLabelView = () => {
       stubs: {
         VDataEntry: {
           props: ['datum', 'index'],
-          template: '<div class="stub-entry"><slot /></div>',
+          template: '<div class="stub-entry" :data-uuid="datum.uuid"><slot /></div>',
         },
       },
     },
@@ -74,9 +74,11 @@ describe('theViewLabel interface', () => {
     const prev = wrapper.find('button[title="Show previous 1 entries"]')
 
     expect(prev.attributes('disabled')).toBeDefined()
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
     await next.trigger('click')
-    expect(wrapper.find('.stub-entry').exists()).toBe(true)
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-b')
     await prev.trigger('click')
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
     expect(prev.attributes('disabled')).toBeDefined()
   })
 
@@ -103,11 +105,44 @@ describe('theViewLabel interface', () => {
   })
 
   it('pressing d then a navigates forward and back when visible', async () => {
-    mountLabelView()
-    const store = useAnnotationStore()
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }))
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }))
+    const wrapper = mountLabelView()
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
 
-    expect(store.annotations).toHaveLength(0)
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-b')
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
+  })
+
+  it('pressing d at the last entry stays on the last entry', async () => {
+    const wrapper = mountLabelView()
+    const selectorStore = useSelectorStore()
+    selectorStore.addSearchSelector('vis-a')
+    await wrapper.vm.$nextTick()
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }))
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
+    expect(wrapper.text()).not.toContain('No Entries Matched')
+  })
+
+  it('clamps startIndex when selectors shrink the matched set', async () => {
+    const wrapper = mountLabelView()
+    const next = wrapper.find('button[title="Show next 1 entries"]')
+    await next.trigger('click')
+    await next.trigger('click')
+    await next.trigger('click')
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-d')
+
+    const selectorStore = useSelectorStore()
+    selectorStore.addSearchSelector('vis-a')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
+    expect(wrapper.text()).not.toContain('No Entries Matched')
   })
 })

@@ -57,7 +57,11 @@ export const loadAnnotations = async (): Promise<Annotation[]> => {
   if (!response.ok) {
     throw new Error(`Failed to load annotations (${response.status})`)
   }
-  return await response.json() as Annotation[]
+  const parsed = annotationsSchema.safeParse(await response.json())
+  if (!parsed.success) {
+    throw new Error('Failed to load annotations: invalid annotations JSON')
+  }
+  return parsed.data
 }
 
 /** Whether two classification values are the same replace-pair (Vis/NotVis, …). */

@@ -38,4 +38,35 @@ describe('loadVisualizations', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 404 })))
     await expect(loadVisualizations()).rejects.toThrow(/404/)
   })
+
+  it('throws when JSON is not a valid visualizations array', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => [{ uuid: 1 }],
+    })))
+    await expect(loadVisualizations()).rejects.toThrow(/invalid visualizations/i)
+  })
+
+  it('accepts null languages and maps them to an empty list', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ([{
+        uuid: 'v2',
+        authors: null,
+        displayName: 'No lang',
+        publishDate: null,
+        viewUrl: 'https://example.com/v',
+        downloadUrl: 'https://example.com/i.png',
+        languages: null,
+        tags: [],
+        abstract: null,
+        rights: 'public',
+        source: { name: 'S', url: 'https://example.com', accessDate: '2024-01-01' },
+      }]),
+    })))
+
+    const result = await loadVisualizations()
+    expect(result[0].languages).toEqual([])
+    expect(result[0].publishDate).toBeNull()
+  })
 })

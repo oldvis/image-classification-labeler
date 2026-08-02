@@ -75,4 +75,14 @@ describe('selector store filter contracts', () => {
     store.toggleUnlabeledSelector()
     expect(store.selectors).toHaveLength(0)
   })
+
+  it('removeSelector is a no-op for an unknown uuid', () => {
+    const store = useSelectorStore()
+    store.toggleUnlabeledSelector()
+    const before = [...store.selectors]
+
+    store.removeSelector('missing-uuid')
+
+    expect(store.selectors).toEqual(before)
+  })
 })

@@ -131,6 +131,7 @@ export const useStore = defineStore('selectors', {
     /** Remove selector by uuid. */
     removeSelector(uuid: string): void {
       const index = this.selectors.findIndex((d) => d.uuid === uuid)
+      if (index === -1) return
       this.selectors.splice(index, 1)
     },
     /** Apply a selector to the data entries. */
