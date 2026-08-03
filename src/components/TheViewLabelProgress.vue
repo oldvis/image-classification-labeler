@@ -2,7 +2,12 @@
 import { groupBy } from 'lodash'
 import { storeToRefs } from 'pinia'
 import { saveJsonFile, uploadJsonFile } from '~/plugins/file'
-import { AnnotationType, Category, isAnnotationArray, useStore as useAnnotationStore } from '~/stores/annotation'
+import {
+  AnnotationType,
+  Category,
+  parseUploadedAnnotations,
+  useStore as useAnnotationStore,
+} from '~/stores/annotation'
 import { useStore as useMessageStore } from '~/stores/message'
 import { useStore as useVisStore } from '~/stores/visualization'
 
@@ -28,6 +33,7 @@ const nTable = computed(() => (labelsByValue.value[Category.Table]?.length ?? 0)
 const nNotTable = computed(() => (labelsByValue.value[Category.NotTable]?.length ?? 0))
 const nUnsure = computed(() => (labelsByValue.value[Category.Unsure]?.length ?? 0))
 const nConfident = computed(() => (labelsByValue.value[Category.Confident]?.length ?? 0))
+// Assumes annotation subjects ⊆ loaded visualizations (enforced on upload).
 const nUnlabeled = computed(() => (visualizations.value.length - labeledUuids.value.size))
 
 const save = () => {
@@ -37,11 +43,13 @@ const upload = async () => {
   try {
     const data = await uploadJsonFile()
     if (data === null) return
-    if (!isAnnotationArray(data)) {
-      addErrorMessage('Upload failed: file is not an annotations array')
+    const knownSubjects = new Set(visualizations.value.map((d) => d.uuid))
+    const parsed = parseUploadedAnnotations(data, knownSubjects)
+    if (!parsed.ok) {
+      addErrorMessage(parsed.error)
       return
     }
-    annotations.value = data
+    annotations.value = parsed.data
     addSuccessMessage('Annotations uploaded')
   }
   catch {

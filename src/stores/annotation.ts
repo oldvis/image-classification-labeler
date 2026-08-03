@@ -52,6 +52,71 @@ export const isAnnotationArray = (value: unknown): value is Annotation[] => (
   annotationsSchema.safeParse(value).success
 )
 
+const classificationPairId = (value: Category): string | null => {
+  if (value === Category.Vis || value === Category.NotVis) return 'vis'
+  if (value === Category.Map || value === Category.NotMap) return 'map'
+  if (value === Category.Text || value === Category.NotText) return 'text'
+  if (value === Category.Table || value === Category.NotTable) return 'table'
+  return null
+}
+
+/**
+ * Validate uploaded annotations against the loaded dataset.
+ *
+ * Subject membership is enforced here (not in progress counters): `#Not-Labeled`
+ * is `visualizations.length - labeledUuids.size`, which goes negative or otherwise
+ * misreports if annotations reference subjects outside the loaded catalog.
+ * Upload is the boundary where untrusted files enter; keep that invariant there
+ * so UI stats can stay O(1).
+ *
+ * Also rejects duplicate annotation uuids, duplicate subject+value rows, and
+ * contradictory same-pair classifications (e.g. Vis and NotVis on one subject).
+ */
+export const parseUploadedAnnotations = (
+  value: unknown,
+  knownSubjects: ReadonlySet<string>,
+): { ok: true, data: Annotation[] } | { ok: false, error: string } => {
+  const parsed = annotationsSchema.safeParse(value)
+  if (!parsed.success) {
+    return { ok: false, error: 'Upload failed: file is not an annotations array' }
+  }
+
+  const seenUuids = new Set<string>()
+  const seenSubjectValues = new Set<string>()
+  const seenPairs = new Map<string, Category>()
+
+  for (const annotation of parsed.data) {
+    if (!knownSubjects.has(annotation.subject)) {
+      return { ok: false, error: 'Upload failed: annotation subject is not in the dataset' }
+    }
+    if (seenUuids.has(annotation.uuid)) {
+      return { ok: false, error: 'Upload failed: duplicate annotation uuid' }
+    }
+    seenUuids.add(annotation.uuid)
+
+    const subjectValueKey = `${annotation.subject}:${annotation.value}`
+    if (seenSubjectValues.has(subjectValueKey)) {
+      return { ok: false, error: 'Upload failed: duplicate classification for the same subject' }
+    }
+    seenSubjectValues.add(subjectValueKey)
+
+    const pairId = classificationPairId(annotation.value)
+    if (pairId !== null) {
+      const pairKey = `${annotation.subject}:${pairId}`
+      const existing = seenPairs.get(pairKey)
+      if (existing !== undefined && existing !== annotation.value) {
+        return {
+          ok: false,
+          error: 'Upload failed: contradictory classifications for the same subject',
+        }
+      }
+      seenPairs.set(pairKey, annotation.value)
+    }
+  }
+
+  return { ok: true, data: parsed.data }
+}
+
 export const loadAnnotations = async (): Promise<Annotation[]> => {
   const response = await fetch(annotationsUrl)
   if (!response.ok) {

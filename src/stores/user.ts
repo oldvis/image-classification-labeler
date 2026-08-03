@@ -9,7 +9,7 @@ export const useStore = defineStore('user', {
   }),
   getters: {
     isSignedIn(): boolean {
-      return this.name !== null
+      return this.name !== null && this.uuid !== null
     },
   },
   actions: {

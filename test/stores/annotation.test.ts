@@ -3,6 +3,7 @@ import {
   Category,
   isAnnotationArray,
   loadAnnotations,
+  parseUploadedAnnotations,
   useStore as useAnnotationStore,
 } from '~/stores/annotation'
 import { useStore as useUserStore } from '~/stores/user'
@@ -120,6 +121,27 @@ describe('annotation store labeling contracts', () => {
     const store = useAnnotationStore()
     store.addClassification('vis-a', Category.Vis)
     expect(store.annotations[0].user).toBeNull()
+  })
+
+  it('parseUploadedAnnotations rejects unknown subjects and contradictory pairs', () => {
+    const known = new Set(['vis-a'])
+    expect(parseUploadedAnnotations(
+      [makeAnnotation('missing', Category.Vis)],
+      known,
+    )).toMatchObject({ ok: false, error: expect.stringMatching(/subject/i) })
+
+    expect(parseUploadedAnnotations(
+      [
+        makeAnnotation('vis-a', Category.Vis),
+        makeAnnotation('vis-a', Category.NotVis, { uuid: 'other' }),
+      ],
+      known,
+    )).toMatchObject({ ok: false, error: expect.stringMatching(/contradictory/i) })
+
+    expect(parseUploadedAnnotations(
+      [makeAnnotation('vis-a', Category.Vis)],
+      known,
+    )).toMatchObject({ ok: true })
   })
 
   it('isAnnotationArray accepts well-formed rows and rejects junk', () => {

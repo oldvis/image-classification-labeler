@@ -20,19 +20,44 @@ const props = defineProps({
 
 const { datum } = toRefs(props)
 const showMetadata = ref(false)
-const { addSuccessMessage } = useStore()
-const { copy } = useClipboard()
+const { addSuccessMessage, addErrorMessage } = useStore()
+const { copy, copied } = useClipboard()
 
-const onClickCopy = () => {
-  copy(JSON.stringify(datum.value))
-  addSuccessMessage('Metadata Copied.')
-}
-const isHttps = (url: string | null | undefined): boolean => {
-  if (url === null || url === undefined) {
-    return false
+const onClickCopy = async () => {
+  await copy(JSON.stringify(datum.value))
+  if (copied.value) {
+    addSuccessMessage('Metadata Copied.')
   }
-  return new URL(url).protocol === 'https:'
+  else {
+    addErrorMessage('Failed to copy metadata.')
+  }
 }
+
+/** Parse only http(s) URLs; malformed or other schemes return null. */
+const safeHttpUrl = (url: string | null | undefined): string | null => {
+  if (url === null || url === undefined || url === '') return null
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return url
+    }
+    return null
+  }
+  catch {
+    return null
+  }
+}
+
+const isHttps = (url: string | null | undefined): boolean => {
+  const safe = safeHttpUrl(url)
+  if (safe === null) return false
+  return new URL(safe).protocol === 'https:'
+}
+
+const viewHref = computed(() => safeHttpUrl(datum.value.viewUrl))
+const googleHref = computed(() => (
+  `https://www.google.com/search?q=${encodeURIComponent(datum.value.displayName ?? '')}`
+))
 </script>
 
 <template>
@@ -105,24 +130,39 @@ const isHttps = (url: string | null | undefined): boolean => {
             </div>
           </button>
           <a
+            v-if="viewHref !== null"
+            class="icon-btn flex gap-1"
             title="Open original URL in a new tab"
             target="_blank"
-            :href="datum.viewUrl ?? ''"
+            rel="noopener noreferrer"
+            :href="viewHref"
           >
-            <button class="icon-btn flex gap-1">
-              <div class="i-fa6-solid:globe my-auto" />
-              <div class="my-auto">url</div>
-            </button>
+            <div class="i-fa6-solid:globe my-auto" />
+            <div class="my-auto">
+              url
+            </div>
           </a>
+          <span
+            v-else
+            class="icon-btn opacity-50 flex gap-1"
+            title="Original URL is missing or invalid"
+          >
+            <div class="i-fa6-solid:globe my-auto" />
+            <div class="my-auto">
+              url
+            </div>
+          </span>
           <a
+            class="icon-btn flex gap-1"
             title="Search title in Google"
             target="_blank"
-            :href="`https://www.google.com/search?q=${datum.displayName}`"
+            rel="noopener noreferrer"
+            :href="googleHref"
           >
-            <button class="icon-btn flex gap-1">
-              <div class="i-fa6-brands:google my-auto" />
-              <div class="my-auto">google</div>
-            </button>
+            <div class="i-fa6-brands:google my-auto" />
+            <div class="my-auto">
+              google
+            </div>
           </a>
         </div>
         <div

@@ -2,7 +2,7 @@
   {
     "type": "Classification",
     "uuid": "e2e-ann-1",
-    "subject": "e2e-subject-1",
+    "subject": "vis-a",
     "user": "11111111-1111-4111-8111-111111111111",
     "value": "Vis",
     "time": "2024-01-01T00:00:00.000Z"
@@ -10,7 +10,7 @@
   {
     "type": "Classification",
     "uuid": "e2e-ann-2",
-    "subject": "e2e-subject-1",
+    "subject": "vis-a",
     "user": "11111111-1111-4111-8111-111111111111",
     "value": "Map",
     "time": "2024-01-01T00:00:00.000Z"

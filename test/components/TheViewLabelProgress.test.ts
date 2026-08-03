@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import TheViewLabelProgress from '~/components/TheViewLabelProgress.vue'
 import * as filePlugin from '~/plugins/file'
 import { Category, useStore as useAnnotationStore } from '~/stores/annotation'
+import { useStore as useMessageStore } from '~/stores/message'
 import { makeAnnotation } from '../fixtures/annotations'
 import { createTestPinia, resetInterfaceStores } from '../helpers/pinia'
 
@@ -30,7 +31,7 @@ describe('theViewLabelProgress import/export wiring', () => {
     expect(saveSpy).toHaveBeenCalledWith(store.annotations, 'annotations.json')
   })
 
-  it('upload button replaces the annotations array after confirm', async () => {
+  it('upload button replaces the annotations array', async () => {
     const pinia = createTestPinia()
     resetInterfaceStores()
     const store = useAnnotationStore()
@@ -38,7 +39,6 @@ describe('theViewLabelProgress import/export wiring', () => {
 
     const uploaded = [makeAnnotation('vis-b', Category.Map)]
     vi.spyOn(filePlugin, 'uploadJsonFile').mockResolvedValue(uploaded)
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
 
     const wrapper = mount(TheViewLabelProgress, {
       global: { plugins: [pinia] },
@@ -47,19 +47,19 @@ describe('theViewLabelProgress import/export wiring', () => {
     await wrapper.findAll('button').find((b) => b.text() === 'upload')!.trigger('click')
     await Promise.resolve()
 
-    expect(confirmSpy).toHaveBeenCalled()
     expect(store.annotations).toEqual(uploaded)
   })
 
-  it('upload button keeps existing annotations when confirm is cancelled', async () => {
+  it('upload button rejects unknown subjects without replacing annotations', async () => {
     const pinia = createTestPinia()
     resetInterfaceStores()
     const store = useAnnotationStore()
     const existing = [makeAnnotation('vis-a', Category.Vis)]
     store.annotations = existing
 
-    vi.spyOn(filePlugin, 'uploadJsonFile').mockResolvedValue([makeAnnotation('vis-b', Category.Map)])
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    vi.spyOn(filePlugin, 'uploadJsonFile').mockResolvedValue([
+      makeAnnotation('not-in-dataset', Category.Map),
+    ])
 
     const wrapper = mount(TheViewLabelProgress, {
       global: { plugins: [pinia] },
@@ -69,6 +69,7 @@ describe('theViewLabelProgress import/export wiring', () => {
     await Promise.resolve()
 
     expect(store.annotations).toEqual(existing)
+    expect(useMessageStore().messages.some((d) => /subject/i.test(d.content))).toBe(true)
   })
 
   it('upload button keeps existing annotations when payload is invalid', async () => {
