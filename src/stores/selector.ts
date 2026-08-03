@@ -2,7 +2,7 @@ import type { IFuseOptions } from 'fuse.js'
 import type { Visualization } from '~/plugins/visualization'
 import Fuse from 'fuse.js'
 import { isEqual } from 'lodash'
-import { acceptHMRUpdate, defineStore, storeToRefs } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
 import { useStore as useAnnotationStore } from './annotation'
 import { persistKey } from './persist'
@@ -73,19 +73,16 @@ const applySelector = (
     return fuse.search(query.pattern).map((d) => d.item)
   }
   if (selector.type === SelectorType.Unlabeled) {
-    const annotationStore = useAnnotationStore()
-    const { labeledUuids } = storeToRefs(annotationStore)
-    return data.filter((d) => !labeledUuids.value.has(d.uuid))
+    const { isLabeled } = useAnnotationStore()
+    return data.filter((d) => !isLabeled(d.uuid))
   }
   if (selector.type === SelectorType.Labeled) {
-    const annotationStore = useAnnotationStore()
-    const { labeledUuids } = storeToRefs(annotationStore)
-    return data.filter((d) => labeledUuids.value.has(d.uuid))
+    const { isLabeled } = useAnnotationStore()
+    return data.filter((d) => isLabeled(d.uuid))
   }
   if (selector.type === SelectorType.Unsure) {
-    const annotationStore = useAnnotationStore()
-    const { unsureUuids } = storeToRefs(annotationStore)
-    return data.filter((d) => unsureUuids.value.has(d.uuid))
+    const { isUnsure } = useAnnotationStore()
+    return data.filter((d) => isUnsure(d.uuid))
   }
   return []
 }

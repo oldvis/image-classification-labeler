@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { groupBy } from 'lodash'
 import { storeToRefs } from 'pinia'
 import { saveJsonFile, uploadJsonFile } from '~/plugins/file'
 import {
-  AnnotationType,
   Category,
   parseUploadedAnnotations,
   useStore as useAnnotationStore,
@@ -12,29 +10,25 @@ import { useStore as useMessageStore } from '~/stores/message'
 import { useStore as useVisStore } from '~/stores/visualization'
 
 const annotationStore = useAnnotationStore()
-const { annotations, labeledUuids } = storeToRefs(annotationStore)
+const { annotations, labeledCount, classificationCountByValue } = storeToRefs(annotationStore)
 const { visualizations } = storeToRefs(useVisStore())
 const { addErrorMessage, addSuccessMessage } = useMessageStore()
 
-// Group classification labels by value.
-const labelsByValue = computed(() => {
-  const clfLabels = annotations.value
-    .filter((d) => d.type === AnnotationType.Classification)
-  return groupBy(clfLabels, 'value')
-})
-
-const nVis = computed(() => (labelsByValue.value[Category.Vis]?.length ?? 0))
-const nNotVis = computed(() => (labelsByValue.value[Category.NotVis]?.length ?? 0))
-const nMap = computed(() => (labelsByValue.value[Category.Map]?.length ?? 0))
-const nNotMap = computed(() => (labelsByValue.value[Category.NotMap]?.length ?? 0))
-const nText = computed(() => (labelsByValue.value[Category.Text]?.length ?? 0))
-const nNotText = computed(() => (labelsByValue.value[Category.NotText]?.length ?? 0))
-const nTable = computed(() => (labelsByValue.value[Category.Table]?.length ?? 0))
-const nNotTable = computed(() => (labelsByValue.value[Category.NotTable]?.length ?? 0))
-const nUnsure = computed(() => (labelsByValue.value[Category.Unsure]?.length ?? 0))
-const nConfident = computed(() => (labelsByValue.value[Category.Confident]?.length ?? 0))
+// Read incremental store counts — do not filter/groupBy `annotations` here.
+// The flat list is markRaw (see annotation store); rescanning it each click was
+// a major label-latency cost, and push/splice would not invalidate this strip.
+const nVis = computed(() => classificationCountByValue.value[Category.Vis])
+const nNotVis = computed(() => classificationCountByValue.value[Category.NotVis])
+const nMap = computed(() => classificationCountByValue.value[Category.Map])
+const nNotMap = computed(() => classificationCountByValue.value[Category.NotMap])
+const nText = computed(() => classificationCountByValue.value[Category.Text])
+const nNotText = computed(() => classificationCountByValue.value[Category.NotText])
+const nTable = computed(() => classificationCountByValue.value[Category.Table])
+const nNotTable = computed(() => classificationCountByValue.value[Category.NotTable])
+const nUnsure = computed(() => classificationCountByValue.value[Category.Unsure])
+const nConfident = computed(() => classificationCountByValue.value[Category.Confident])
 // Assumes annotation subjects ⊆ loaded visualizations (enforced on upload).
-const nUnlabeled = computed(() => (visualizations.value.length - labeledUuids.value.size))
+const nUnlabeled = computed(() => (visualizations.value.length - labeledCount.value))
 
 const save = () => {
   saveJsonFile(annotations.value, 'annotations.json')
@@ -49,7 +43,7 @@ const upload = async () => {
       addErrorMessage(parsed.error)
       return
     }
-    annotations.value = parsed.data
+    annotationStore.setAnnotations(parsed.data)
     addSuccessMessage('Annotations uploaded')
   }
   catch {

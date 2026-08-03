@@ -33,7 +33,7 @@ export const useDatasetGate = () => {
         })(),
         (async () => {
           if (annStore.annotations.length === 0) {
-            annStore.annotations = await loadAnnotations()
+            annStore.setAnnotations(await loadAnnotations())
           }
         })(),
       ])

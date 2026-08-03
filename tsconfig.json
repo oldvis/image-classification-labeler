@@ -13,6 +13,7 @@
     },
     "resolveJsonModule": true,
     "types": [
+      "node",
       "vite/client",
       "vite-plugin-pages/client",
       "unplugin-vue-macros/macros-global"
@@ -31,6 +32,8 @@
     "src/**/*.d.ts",
     "src/**/*.vue",
     "test/**/*.ts",
+    "e2e/**/*.ts",
+    "playwright.config.ts",
     "auto-imports.d.ts",
     "components.d.ts",
     "shims.d.ts"

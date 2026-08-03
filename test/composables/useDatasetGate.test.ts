@@ -52,7 +52,7 @@ describe('useDatasetGate', () => {
 
   it('does not refetch annotations when already loaded', async () => {
     const existing = [makeAnnotation('vis-a', Category.NotText)]
-    useAnnotationStore().$patch({ annotations: existing })
+    useAnnotationStore().setAnnotations(existing)
     const fetchMock = vi.fn(async () => ({
       ok: true,
       json: async () => [makeAnnotation('vis-b', Category.Vis)],
@@ -75,7 +75,7 @@ describe('useDatasetGate', () => {
 
   it('does not refetch visualizations when already loaded', async () => {
     useVisStore().$patch({ visualizations: fixtureVisualizations })
-    useAnnotationStore().$patch({ annotations: [makeAnnotation('vis-a', Category.Vis)] })
+    useAnnotationStore().setAnnotations([makeAnnotation('vis-a', Category.Vis)])
     const { loadDatasets } = useDatasetGate()
     await loadDatasets()
     expect(loadVisualizations).not.toHaveBeenCalled()

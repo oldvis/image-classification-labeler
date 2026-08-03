@@ -59,7 +59,9 @@ describe('annotation store labeling contracts', () => {
       value: Category.Vis,
     })
     expect(store.isLabeled('vis-a')).toBe(true)
-    expect(store.labeledUuids.has('vis-a')).toBe(true)
+    expect(store.labeledCount).toBe(1)
+    expect(store.isClassified('vis-a', Category.Vis)).toBe(true)
+    expect(store.classificationCountByValue[Category.Vis]).toBe(1)
   })
 
   it('replaces Vis with NotVis instead of keeping both', () => {
@@ -71,6 +73,8 @@ describe('annotation store labeling contracts', () => {
       .filter((d) => d.subject === 'vis-a')
       .map((d) => d.value)
     expect(values).toEqual([Category.NotVis])
+    expect(store.classificationCountByValue[Category.Vis]).toBe(0)
+    expect(store.classificationCountByValue[Category.NotVis]).toBe(1)
   })
 
   it('keeps independent pairs side by side (Vis + Map + Text + Table)', () => {
@@ -80,7 +84,10 @@ describe('annotation store labeling contracts', () => {
     store.addClassification('vis-a', Category.Text)
     store.addClassification('vis-a', Category.Table)
 
-    const values = store.labelsByUuid['vis-a'].map((d) => d.value).sort()
+    const values = store.annotations
+      .filter((d) => d.subject === 'vis-a')
+      .map((d) => d.value)
+      .sort()
     expect(values).toEqual([
       Category.Map,
       Category.Table,
@@ -94,9 +101,9 @@ describe('annotation store labeling contracts', () => {
     store.addClassification('vis-a', Category.Unsure)
     store.addClassification('vis-a', Category.Confident)
 
-    const values = store.labelsByUuid['vis-a'].map((d) => d.value).sort()
-    expect(values).toEqual([Category.Confident, Category.Unsure].sort())
-    expect(store.unsureUuids.has('vis-a')).toBe(true)
+    expect(store.isClassified('vis-a', Category.Unsure)).toBe(true)
+    expect(store.isClassified('vis-a', Category.Confident)).toBe(true)
+    expect(store.isUnsure('vis-a')).toBe(true)
   })
 
   it('removeClassification removes only the exact value', () => {
@@ -105,7 +112,8 @@ describe('annotation store labeling contracts', () => {
     store.addClassification('vis-a', Category.Map)
     store.removeClassification('vis-a', Category.Vis)
 
-    expect(store.labelsByUuid['vis-a'].map((d) => d.value)).toEqual([Category.Map])
+    expect(store.isClassified('vis-a', Category.Vis)).toBe(false)
+    expect(store.isClassified('vis-a', Category.Map)).toBe(true)
   })
 
   it('stamps the signed-in user uuid onto new annotations', () => {

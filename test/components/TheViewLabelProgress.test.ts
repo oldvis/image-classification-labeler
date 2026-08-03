@@ -18,7 +18,7 @@ describe('theViewLabelProgress import/export wiring', () => {
     const pinia = createTestPinia()
     resetInterfaceStores()
     const store = useAnnotationStore()
-    store.annotations = [makeAnnotation('vis-a', Category.Vis)]
+    store.setAnnotations([makeAnnotation('vis-a', Category.Vis)])
 
     const saveSpy = vi.spyOn(filePlugin, 'saveJsonFile').mockImplementation(() => {})
 
@@ -35,7 +35,7 @@ describe('theViewLabelProgress import/export wiring', () => {
     const pinia = createTestPinia()
     resetInterfaceStores()
     const store = useAnnotationStore()
-    store.annotations = [makeAnnotation('vis-a', Category.Vis)]
+    store.setAnnotations([makeAnnotation('vis-a', Category.Vis)])
 
     const uploaded = [makeAnnotation('vis-b', Category.Map)]
     vi.spyOn(filePlugin, 'uploadJsonFile').mockResolvedValue(uploaded)
@@ -55,7 +55,7 @@ describe('theViewLabelProgress import/export wiring', () => {
     resetInterfaceStores()
     const store = useAnnotationStore()
     const existing = [makeAnnotation('vis-a', Category.Vis)]
-    store.annotations = existing
+    store.setAnnotations(existing)
 
     vi.spyOn(filePlugin, 'uploadJsonFile').mockResolvedValue([
       makeAnnotation('not-in-dataset', Category.Map),
@@ -77,7 +77,7 @@ describe('theViewLabelProgress import/export wiring', () => {
     resetInterfaceStores()
     const store = useAnnotationStore()
     const existing = [makeAnnotation('vis-a', Category.Vis)]
-    store.annotations = existing
+    store.setAnnotations(existing)
 
     vi.spyOn(filePlugin, 'uploadJsonFile').mockResolvedValue({ nope: true })
 
@@ -95,11 +95,11 @@ describe('theViewLabelProgress import/export wiring', () => {
     const pinia = createTestPinia()
     resetInterfaceStores()
     const store = useAnnotationStore()
-    store.annotations = [
+    store.setAnnotations([
       makeAnnotation('vis-a', Category.Vis),
       makeAnnotation('vis-b', Category.NotVis),
       makeAnnotation('vis-a', Category.Unsure),
-    ]
+    ])
 
     const wrapper = mount(TheViewLabelProgress, {
       global: { plugins: [pinia] },

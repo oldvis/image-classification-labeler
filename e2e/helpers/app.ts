@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { expect } from '@playwright/test'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const tinyPng = path.resolve(__dirname, '../fixtures/tiny.png')
@@ -48,6 +49,8 @@ const isViteJsonUrlImport = (url: string): boolean => {
 interface StubDatasetJsonOptions {
   /** Absolute path to an annotations JSON fixture. Defaults to an empty array. */
   annotationsPath?: string
+  /** Absolute path to a visualizations JSON fixture. Defaults to the mini fixture. */
+  visualizationsPath?: string
 }
 
 /**
@@ -82,7 +85,7 @@ export async function stubDatasetJson(
       return
     }
     await route.fulfill({
-      path: miniVisualizations,
+      path: options.visualizationsPath ?? miniVisualizations,
       contentType: 'application/json',
     })
   })
@@ -96,4 +99,65 @@ export async function openAnnotateApp(page: Page): Promise<void> {
   await page.goto('/')
   await page.getByText('Entries', { exact: true }).waitFor({ state: 'visible', timeout: 60_000 })
   await page.getByRole('button', { name: 'Vis', exact: true }).waitFor({ state: 'visible' })
+}
+
+const realAnnotations = path.resolve(__dirname, '../../src/assets/annotations.json')
+const realVisualizations = path.resolve(__dirname, '../../src/assets/visualizations.json')
+
+/** Open annotate view with production-sized assets (latency regression tests). */
+export async function openAnnotateAppWithRealAssets(page: Page): Promise<void> {
+  await clearAppStorage(page)
+  await stubDatasetJson(page, {
+    annotationsPath: realAnnotations,
+    visualizationsPath: realVisualizations,
+  })
+  await stubRemoteImages(page)
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await page.getByText('Entries', { exact: true }).waitFor({ state: 'visible', timeout: 180_000 })
+  await page.getByRole('button', { name: 'Vis', exact: true }).waitFor({ state: 'visible' })
+  await expect.poll(async () => {
+    const text = await page.locator('[view-header]').evaluate((el) => el.textContent ?? '')
+    return text.match(/#entries:\s*(\d+)/)?.[1] ?? ''
+  }).toBe('13511')
+}
+
+/**
+ * In-page click → category `ring` attribute change (add or remove).
+ * This is the user-perceived label feedback latency.
+ */
+export async function measureCategoryRingLatencyMs(
+  page: Page,
+  category: string,
+): Promise<number> {
+  const button = page.getByRole('button', { name: category, exact: true })
+  await button.waitFor({ state: 'visible' })
+  return button.evaluate(async (el) => {
+    const start = performance.now()
+    const before = el.getAttribute('ring') ?? ''
+    await new Promise<void>((resolve, reject) => {
+      let settled = false
+      let timer = 0
+      let obs: MutationObserver
+      const finish = (error?: Error): void => {
+        if (settled) return
+        settled = true
+        window.clearTimeout(timer)
+        obs.disconnect()
+        if (error !== undefined) reject(error)
+        else resolve()
+      }
+      obs = new MutationObserver(() => {
+        if ((el.getAttribute('ring') ?? '') !== before) {
+          finish()
+        }
+      })
+      timer = window.setTimeout(() => {
+        finish(new Error('Timed out waiting for ring attribute change'))
+      }, 30_000)
+      obs.observe(el, { attributes: true, attributeFilter: ['ring'] })
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    })
+    return performance.now() - start
+  })
 }

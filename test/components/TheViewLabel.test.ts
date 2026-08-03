@@ -52,10 +52,11 @@ describe('theViewLabel interface', () => {
     const notVisBtn = wrapper.find('button[title="This is not a visualization"]')
 
     await visBtn.trigger('click')
-    expect(store.labelsByUuid['vis-a'].map((d) => d.value)).toEqual([Category.Vis])
+    expect(store.isClassified('vis-a', Category.Vis)).toBe(true)
 
     await notVisBtn.trigger('click')
-    expect(store.labelsByUuid['vis-a'].map((d) => d.value)).toEqual([Category.NotVis])
+    expect(store.isClassified('vis-a', Category.Vis)).toBe(false)
+    expect(store.isClassified('vis-a', Category.NotVis)).toBe(true)
   })
 
   it('clicking an active category removes it', async () => {

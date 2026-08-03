@@ -13,7 +13,7 @@ export const createTestPinia = () => {
 
 /** Reset mutable store state used by interface tests. */
 export const resetInterfaceStores = () => {
-  useAnnotationStore().$patch({ annotations: [] })
+  useAnnotationStore().setAnnotations([])
   useSelectorStore().$patch({ selectors: [] })
   useUserStore().$patch({ name: null, uuid: null })
   useVisStore().$patch({ visualizations: fixtureVisualizations })

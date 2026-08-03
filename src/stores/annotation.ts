@@ -1,6 +1,6 @@
-import { groupBy } from 'lodash'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
+import { computed, markRaw, reactive, shallowRef } from 'vue'
 import { z } from 'zod'
 import annotationsUrl from '~/assets/annotations.json?url'
 import { useStore as useUserStore } from './user'
@@ -64,7 +64,7 @@ const classificationPairId = (value: Category): string | null => {
  * Validate uploaded annotations against the loaded dataset.
  *
  * Subject membership is enforced here (not in progress counters): `#Not-Labeled`
- * is `visualizations.length - labeledUuids.size`, which goes negative or otherwise
+ * is `visualizations.length - labeledCount`, which goes negative or otherwise
  * misreports if annotations reference subjects outside the loaded catalog.
  * Upload is the boundary where untrusted files enter; keep that invariant there
  * so UI stats can stay O(1).
@@ -141,70 +141,276 @@ export const sameClassificationPair = (a: Category, b: Category): boolean => (
     && (b === Category.Table || b === Category.NotTable))
 )
 
-export const useStore = defineStore('annotation', {
-  state: () => ({
-    annotations: [] as Annotation[],
-  }),
-  getters: {
-    /** The annotations grouped by subject uuid. */
-    labelsByUuid(): Record<string, Annotation[]> {
-      return groupBy(this.annotations, 'subject')
-    },
-    /** The uuids of labeled data objects. */
-    labeledUuids(): Set<string> {
-      return new Set(Object.keys(this.labelsByUuid))
-    },
-    /** The uuids of data objects labeled unsure. */
-    unsureUuids(): Set<string> {
-      return new Set(this.annotations
-        .filter((d) => d.type === AnnotationType.Classification && d.value === Category.Unsure)
-        .map((d) => d.subject))
-    },
-  },
-  actions: {
-    /** Try adding a classification annotation. */
-    addClassification(subject: string, value: Category): void {
-      const userStore = useUserStore()
-      const type = AnnotationType.Classification
-      const user = userStore.uuid
+const emptyCountByValue = (): Record<Category, number> => ({
+  [Category.Vis]: 0,
+  [Category.NotVis]: 0,
+  [Category.Map]: 0,
+  [Category.NotMap]: 0,
+  [Category.Text]: 0,
+  [Category.NotText]: 0,
+  [Category.Table]: 0,
+  [Category.NotTable]: 0,
+  [Category.Unsure]: 0,
+  [Category.Confident]: 0,
+})
 
-      /** Whether to replace old annotation. */
-      const index = this.annotations.findIndex((d) => (
-        d.type === type
-        && d.subject === subject
-        && sameClassificationPair(d.value, value)
-      ))
-      const replace = index !== -1
-      const annotation: Annotation = {
-        type,
-        uuid: uuidv4(),
-        subject,
-        user,
-        value,
-        time: new Date().toISOString(),
-      }
-      if (!replace) this.annotations.push(annotation)
-      else this.annotations[index] = annotation
-    },
-    /** Try removing a classification annotation. */
-    removeClassification(subject: string, value: Category): void {
-      const type = AnnotationType.Classification
+const bumpCount = (
+  countByValue: Record<Category, number>,
+  value: Category,
+  delta: number,
+): void => {
+  countByValue[value] += delta
+}
 
-      /** Whether to replace old annotation. */
-      const index = this.annotations.findIndex((d) => (
-        d.type === type
-        && d.subject === subject
-        && d.value === value
-      ))
-      if (index !== -1) {
-        this.annotations.splice(index, 1)
+const toRawAnnotations = (annotations: Annotation[]): Annotation[] => (
+  markRaw(annotations.map((annotation) => markRaw(annotation)))
+)
+
+const buildIndexes = (annotations: Annotation[]) => {
+  const labelsBySubject: Record<string, Annotation[]> = {}
+  const labeledSubjectUuids = new Set<string>()
+  const unsureSubjectUuids = new Set<string>()
+  const uuidToIndex = new Map<string, number>()
+  const countByValue = emptyCountByValue()
+
+  for (let i = 0; i < annotations.length; i += 1) {
+    const annotation = annotations[i]
+    uuidToIndex.set(annotation.uuid, i)
+    labeledSubjectUuids.add(annotation.subject)
+    bumpCount(countByValue, annotation.value, 1)
+    if (annotation.type === AnnotationType.Classification
+      && annotation.value === Category.Unsure) {
+      unsureSubjectUuids.add(annotation.subject)
+    }
+    const list = labelsBySubject[annotation.subject]
+    if (list === undefined) {
+      labelsBySubject[annotation.subject] = [annotation]
+    }
+    else {
+      list.push(annotation)
+    }
+  }
+
+  return {
+    labelsBySubject,
+    labeledSubjectUuids,
+    unsureSubjectUuids,
+    uuidToIndex: markRaw(uuidToIndex),
+    countByValue,
+  }
+}
+
+/** O(1) remove from the raw annotations list (order is not significant). */
+const removeAnnotationAt = (
+  annotations: Annotation[],
+  uuidToIndex: Map<string, number>,
+  annIndex: number,
+  uuid: string,
+): void => {
+  const last = annotations.length - 1
+  if (annIndex !== last) {
+    const moved = annotations[last]
+    annotations[annIndex] = moved
+    uuidToIndex.set(moved.uuid, annIndex)
+  }
+  annotations.pop()
+  uuidToIndex.delete(uuid)
+}
+
+const clearRecord = (record: Record<string, unknown>): void => {
+  for (const key of Object.keys(record)) {
+    delete record[key]
+  }
+}
+
+/**
+ * Annotation store (setup form: only returned members are public).
+ *
+ * Public: `annotations` (download/upload), `classificationCountByValue`,
+ * `labeledCount`, `isClassified` / `isLabeled` / `isUnsure`, mutators.
+ * Private: `labelsBySubject`, labeled/unsure Sets, `uuidToIndex`, `countByValue`.
+ *
+ * Hot-path design for large catalogs (~13k visualizations / ~46k annotations):
+ * keep `annotations` + `uuidToIndex` markRaw (export only), maintain reactive
+ * indexes incrementally on add/remove, and remove flat-list rows with O(1)
+ * swap-pop. Do not re-`groupBy` / rescan all annotations on each click.
+ *
+ * Typical cost on real assets (see `e2e/label-latency.spec.ts`):
+ * - add/removeClassification → category ring: well under 50ms (often <1ms)
+ * - isClassified: O(#labels on that subject); isLabeled / isUnsure: O(1)
+ * - classificationCountByValue / labeledCount reads: O(1)
+ * - setAnnotations: cold path, O(n) index rebuild on load/upload
+ *
+ * Related: https://github.com/oldvis/image-taxonomy-labeler
+ * (`packages/ui/src/label-tasks/useCommon.ts`) uses the same incremental-index
+ * idea; this store also markRaws the flat list and uses O(1) remove.
+ */
+export const useStore = defineStore('annotation', () => {
+  /** Flat export/download list — markRaw; see store doc above. */
+  const annotations = shallowRef<Annotation[]>(markRaw([]))
+
+  /** Per-subject labels (ring / isClassified). */
+  const labelsBySubject = reactive<Record<string, Annotation[]>>({})
+  const labeledSubjectUuids = reactive(new Set<string>())
+  const unsureSubjectUuids = reactive(new Set<string>())
+  /** Internal flat-list index — never returned. */
+  let uuidToIndex: Map<string, number> = markRaw(new Map())
+  const countByValue = reactive(emptyCountByValue())
+
+  /** O(1) progress-strip counts. */
+  const classificationCountByValue = computed(() => countByValue)
+  /** O(1) `#Not-Labeled` helper: visualizations.length - labeledCount. */
+  const labeledCount = computed(() => labeledSubjectUuids.size)
+
+  /** Hot path (ring): O(#labels on subject). */
+  const isClassified = (uuid: string, category: Category): boolean => {
+    const subjectLabels = labelsBySubject[uuid]
+    if (subjectLabels === undefined) return false
+    return subjectLabels.some((d) => (
+      d.type === AnnotationType.Classification && d.value === category
+    ))
+  }
+
+  /** Hot path (filters / in-page labeled): O(1). */
+  const isLabeled = (uuid: string): boolean => labeledSubjectUuids.has(uuid)
+
+  /** Hot path (Unsure filter): O(1). */
+  const isUnsure = (uuid: string): boolean => unsureSubjectUuids.has(uuid)
+
+  /** Cold path (load/upload): O(n) rebuild of all indexes. */
+  const setAnnotations = (next: Annotation[]): void => {
+    const raw = toRawAnnotations(next)
+    annotations.value = raw
+    const indexes = buildIndexes(raw)
+
+    clearRecord(labelsBySubject)
+    Object.assign(labelsBySubject, indexes.labelsBySubject)
+
+    labeledSubjectUuids.clear()
+    for (const uuid of indexes.labeledSubjectUuids) {
+      labeledSubjectUuids.add(uuid)
+    }
+    unsureSubjectUuids.clear()
+    for (const uuid of indexes.unsureSubjectUuids) {
+      unsureSubjectUuids.add(uuid)
+    }
+
+    uuidToIndex = indexes.uuidToIndex
+    Object.assign(countByValue, indexes.countByValue)
+  }
+
+  /** Hot path (label click): incremental index update; ring typically <1ms in e2e. */
+  const addClassification = (subject: string, value: Category): void => {
+    const userStore = useUserStore()
+    const type = AnnotationType.Classification
+    const user = userStore.uuid
+    const annotation = markRaw({
+      type,
+      uuid: uuidv4(),
+      subject,
+      user,
+      value,
+      time: new Date().toISOString(),
+    } satisfies Annotation)
+
+    const subjectLabels = labelsBySubject[subject] ?? []
+    const replaceAt = subjectLabels.findIndex((d) => (
+      d.type === type && sameClassificationPair(d.value, value)
+    ))
+
+    if (replaceAt === -1) {
+      annotations.value.push(annotation)
+      uuidToIndex.set(annotation.uuid, annotations.value.length - 1)
+      // New array reference so Vue tracks the subject update without deep-proxying rows.
+      labelsBySubject[subject] = [...subjectLabels, annotation]
+      labeledSubjectUuids.add(subject)
+      bumpCount(countByValue, value, 1)
+      if (value === Category.Unsure) {
+        unsureSubjectUuids.add(subject)
       }
-    },
-    /** Check if a data entry is labeled */
-    isLabeled(uuid: string): boolean {
-      return this.labeledUuids.has(uuid)
-    },
-  },
+      return
+    }
+
+    const previous = subjectLabels[replaceAt]
+    const annIndex = uuidToIndex.get(previous.uuid)
+    if (annIndex === undefined) {
+      // Index drifted; recover rather than corrupting state.
+      setAnnotations([...annotations.value.filter((d) => d.uuid !== previous.uuid), annotation])
+      return
+    }
+
+    annotations.value[annIndex] = annotation
+    uuidToIndex.delete(previous.uuid)
+    uuidToIndex.set(annotation.uuid, annIndex)
+    const nextLabels = subjectLabels.slice()
+    nextLabels[replaceAt] = annotation
+    labelsBySubject[subject] = nextLabels
+    bumpCount(countByValue, previous.value, -1)
+    bumpCount(countByValue, value, 1)
+
+    if (previous.value === Category.Unsure && value !== Category.Unsure) {
+      const stillUnsure = nextLabels.some((d) => (
+        d.uuid !== annotation.uuid && d.value === Category.Unsure
+      ))
+      if (!stillUnsure) {
+        unsureSubjectUuids.delete(subject)
+      }
+    }
+    if (value === Category.Unsure) {
+      unsureSubjectUuids.add(subject)
+    }
+  }
+
+  /** Hot path (toggle off): O(1) flat-list remove + incremental indexes. */
+  const removeClassification = (subject: string, value: Category): void => {
+    const type = AnnotationType.Classification
+    const subjectLabels = labelsBySubject[subject]
+    if (subjectLabels === undefined) return
+
+    const labelIndex = subjectLabels.findIndex((d) => (
+      d.type === type && d.value === value
+    ))
+    if (labelIndex === -1) return
+
+    const previous = subjectLabels[labelIndex]
+    const annIndex = uuidToIndex.get(previous.uuid)
+    if (annIndex === undefined) {
+      setAnnotations(annotations.value.filter((d) => d.uuid !== previous.uuid))
+      return
+    }
+
+    removeAnnotationAt(annotations.value, uuidToIndex, annIndex, previous.uuid)
+
+    const nextLabels = subjectLabels.slice()
+    nextLabels.splice(labelIndex, 1)
+    bumpCount(countByValue, value, -1)
+    if (nextLabels.length === 0) {
+      delete labelsBySubject[subject]
+      labeledSubjectUuids.delete(subject)
+      unsureSubjectUuids.delete(subject)
+      return
+    }
+    labelsBySubject[subject] = nextLabels
+
+    if (value === Category.Unsure) {
+      const stillUnsure = nextLabels.some((d) => d.value === Category.Unsure)
+      if (!stillUnsure) {
+        unsureSubjectUuids.delete(subject)
+      }
+    }
+  }
+
+  return {
+    annotations,
+    classificationCountByValue,
+    labeledCount,
+    isClassified,
+    isLabeled,
+    isUnsure,
+    setAnnotations,
+    addClassification,
+    removeClassification,
+  }
 })
 
 if (import.meta.hot) {

@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { isFocusedElementEditable, onKeyStroke, useElementVisibility } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import {
-  AnnotationType,
-  Category,
-  useStore as useAnnotationStore,
-} from '~/stores/annotation'
+import { Category, useStore as useAnnotationStore } from '~/stores/annotation'
 import { useStore as useSelectorStore } from '~/stores/selector'
 import { useStore as useVisStore } from '~/stores/visualization'
 
@@ -54,23 +50,12 @@ const showNext = (n: number): void => {
   }
 }
 
-const annotationStore = useAnnotationStore()
-const { labelsByUuid } = storeToRefs(annotationStore)
-const isClassified = (uuid: string, category: Category): boolean => {
-  if (!(uuid in labelsByUuid.value)) return false
-  const flag = labelsByUuid.value[uuid]
-    .findIndex((d) => (
-      d.type === AnnotationType.Classification
-      && d.value === category
-    )) !== -1
-  return flag
-}
-
 const {
+  isClassified,
   isLabeled,
   addClassification,
   removeClassification,
-} = annotationStore
+} = useAnnotationStore()
 const nInPageLabeled = computed(() => (
   shown.value.filter((d) => isLabeled(d.uuid)).length
 ))
