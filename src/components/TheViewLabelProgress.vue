@@ -13,10 +13,8 @@ const annotationStore = useAnnotationStore()
 const { annotations, labeledCount, classificationCountByValue } = storeToRefs(annotationStore)
 const { visualizations } = storeToRefs(useVisStore())
 const { addErrorMessage, addSuccessMessage } = useMessageStore()
+const showDetails = ref(false)
 
-// Read incremental store counts — do not filter/groupBy `annotations` here.
-// The flat list is markRaw (see annotation store); rescanning it each click was
-// a major label-latency cost, and push/splice would not invalidate this strip.
 const nVis = computed(() => classificationCountByValue.value[Category.Vis])
 const nNotVis = computed(() => classificationCountByValue.value[Category.NotVis])
 const nMap = computed(() => classificationCountByValue.value[Category.Map])
@@ -27,7 +25,6 @@ const nTable = computed(() => classificationCountByValue.value[Category.Table])
 const nNotTable = computed(() => classificationCountByValue.value[Category.NotTable])
 const nUnsure = computed(() => classificationCountByValue.value[Category.Unsure])
 const nConfident = computed(() => classificationCountByValue.value[Category.Confident])
-// Assumes annotation subjects ⊆ loaded visualizations (enforced on upload).
 const nUnlabeled = computed(() => (visualizations.value.length - labeledCount.value))
 
 const save = () => {
@@ -53,52 +50,84 @@ const upload = async () => {
 </script>
 
 <template>
-  <div
-    class="px-1 flex flex-wrap gap-1 items-center"
-    border="~ gray-200"
-  >
-    <div class="text-sm flex shrink-0 gap-1">
-      <div class="i-fa6-solid:list-check my-auto" />
-      <div class="font-bold my-auto">
+  <div status-strip>
+    <div class="flex shrink-0 gap-1.5 items-center">
+      <div class="i-fa6-solid:list-check text-gray-500 my-auto" />
+      <div strip-label>
         Progress
       </div>
     </div>
-    <div class="text-sm flex grow flex-wrap gap-1 min-w-0">
-      <template
-        v-for="(d, i) in [
-          { title: '#Vis/Not:', value: `${nVis} / ${nNotVis}` },
-          { title: '#Map/Not:', value: `${nMap} / ${nNotMap}` },
-          { title: '#Text/Not:', value: `${nText} / ${nNotText}` },
-          { title: '#Table/Not:', value: `${nTable} / ${nNotTable}` },
-          { title: '#Unsure:', value: `${nUnsure}` },
-          { title: '#Not-Labeled:', value: `${nUnlabeled}` },
-          { title: '#Confident:', value: `${nConfident}` },
-        ]" :key="d.title"
+    <div class="strip-meta flex grow flex-wrap gap-x-1.5 gap-y-1 min-w-0 items-center">
+      <span>
+        Labeled
+        <span strip-meta-em>{{ labeledCount }}</span>
+        /
+        <span strip-meta-em>{{ visualizations.length }}</span>
+      </span>
+      <span
+        strip-sep
+        aria-hidden="true"
+      >·</span>
+      <span>
+        Unlabeled
+        <span strip-meta-em>{{ nUnlabeled }}</span>
+      </span>
+      <span
+        strip-sep
+        aria-hidden="true"
+      >·</span>
+      <span>
+        Unsure
+        <span strip-meta-em>{{ nUnsure }}</span>
+      </span>
+      <span
+        strip-sep
+        aria-hidden="true"
+      >·</span>
+      <span>
+        Confident
+        <span strip-meta-em>{{ nConfident }}</span>
+      </span>
+      <button
+        type="button"
+        class="btn-ghost ml-1"
+        @click="showDetails = !showDetails"
       >
-        <div v-if="i === 0" class="my-1 border-l border-gray-200" />
-        <div class="my-auto flex gap-1">
-          {{ d.title }}
-          <div class="font-bold">
-            {{ d.value }}
-          </div>
-        </div>
-        <div class="my-1 border-l border-gray-200" />
+        {{ showDetails ? 'Hide Details' : 'Details' }}
+      </button>
+      <template v-if="showDetails">
+        <span>Vis/Not <span strip-meta-em>{{ nVis }} / {{ nNotVis }}</span></span>
+        <span
+          strip-sep
+          aria-hidden="true"
+        >·</span>
+        <span>Map/Not <span strip-meta-em>{{ nMap }} / {{ nNotMap }}</span></span>
+        <span
+          strip-sep
+          aria-hidden="true"
+        >·</span>
+        <span>Text/Not <span strip-meta-em>{{ nText }} / {{ nNotText }}</span></span>
+        <span
+          strip-sep
+          aria-hidden="true"
+        >·</span>
+        <span>Table/Not <span strip-meta-em>{{ nTable }} / {{ nNotTable }}</span></span>
       </template>
     </div>
-    <div class="my-1 flex shrink-0 gap-1">
+    <div class="ml-auto flex shrink-0 gap-1">
       <button
-        btn
+        btn-secondary
         title="Download annotations.json (not saved in the browser)"
         @click="save"
       >
-        download
+        Download
       </button>
       <button
-        btn
+        btn-secondary
         title="Upload annotations.json (replaces current annotations)"
         @click="upload"
       >
-        upload
+        Upload
       </button>
     </div>
   </div>

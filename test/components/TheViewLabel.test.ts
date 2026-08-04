@@ -22,8 +22,8 @@ const mountLabelView = () => {
       plugins: [pinia],
       stubs: {
         VDataEntry: {
-          props: ['datum', 'index'],
-          template: '<div class="stub-entry" :data-uuid="datum.uuid"><slot /></div>',
+          props: ['datum'],
+          template: '<div class="stub-entry" :data-uuid="datum.uuid"><slot /><slot name="image-footer" /></div>',
         },
       },
     },
@@ -49,8 +49,8 @@ describe('theViewLabel interface', () => {
     const wrapper = mountLabelView()
     const store = useAnnotationStore()
 
-    const visBtn = wrapper.find('button[title="This is a visualization"]')
-    const notVisBtn = wrapper.find('button[title="This is not a visualization"]')
+    const visBtn = wrapper.find('button[title^="This is a visualization"]')
+    const notVisBtn = wrapper.find('button[title^="This is not a visualization"]')
 
     await visBtn.trigger('click')
     expect(store.isClassified('vis-a', Category.Vis)).toBe(true)
@@ -63,7 +63,7 @@ describe('theViewLabel interface', () => {
   it('clicking an active category removes it', async () => {
     const wrapper = mountLabelView()
     const store = useAnnotationStore()
-    const visBtn = wrapper.find('button[title="This is a visualization"]')
+    const visBtn = wrapper.find('button[title^="This is a visualization"]')
 
     await visBtn.trigger('click')
     await visBtn.trigger('click')
@@ -72,16 +72,16 @@ describe('theViewLabel interface', () => {
 
   it('next/previous buttons move startIndex within matched entries', async () => {
     const wrapper = mountLabelView()
-    const next = wrapper.find('button[title="Show next 1 entries"]')
-    const prev = wrapper.find('button[title="Show previous 1 entries"]')
+    const next = wrapper.find('button[title^="Show next 1 entries"]')
+    const prev = wrapper.find('button[title^="Show previous 1 entries"]')
 
     expect(prev.attributes('disabled')).toBeDefined()
     expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
     await next.trigger('click')
     expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-b')
-    await prev.trigger('click')
+    await wrapper.find('button[title^="Show previous 1 entries"]').trigger('click')
     expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
-    expect(prev.attributes('disabled')).toBeDefined()
+    expect(wrapper.find('button[title^="Show previous 1 entries"]').attributes('disabled')).toBeDefined()
   })
 
   it('disables next when the filtered match list is exhausted', async () => {
@@ -91,7 +91,7 @@ describe('theViewLabel interface', () => {
     selectorStore.addSearchSelector('vis-a')
     await wrapper.vm.$nextTick()
 
-    const next = wrapper.find('button[title="Show next 1 entries"]')
+    const next = wrapper.find('button[title^="Show next 1 entries"]')
     expect(next.attributes('disabled')).toBeDefined()
   })
 
@@ -100,7 +100,7 @@ describe('theViewLabel interface', () => {
     const store = useAnnotationStore()
     store.addClassification('vis-a', Category.Vis)
 
-    const goto = wrapper.find('button[title="goto first unlabeled"]')
+    const goto = wrapper.find('button[title="Go to First Unlabeled"]')
     await goto.trigger('click')
 
     expect(wrapper.text()).toContain('0/1')
@@ -113,7 +113,7 @@ describe('theViewLabel interface', () => {
       store.addClassification(uuid, Category.Vis)
     }
 
-    const goto = wrapper.find('button[title="goto first unlabeled"]')
+    const goto = wrapper.find('button[title="Go to First Unlabeled"]')
     await goto.trigger('click')
 
     expect(useMessageStore().messages.some((d) => /no unlabeled/i.test(d.content))).toBe(true)
@@ -164,12 +164,12 @@ describe('theViewLabel interface', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
-    expect(wrapper.text()).not.toContain('No Entries Matched')
+    expect(wrapper.text()).not.toContain('No entries matched')
   })
 
   it('clamps startIndex when selectors shrink the matched set', async () => {
     const wrapper = mountLabelView()
-    const next = wrapper.find('button[title="Show next 1 entries"]')
+    const next = wrapper.find('button[title^="Show next 1 entries"]')
     await next.trigger('click')
     await next.trigger('click')
     await next.trigger('click')
@@ -180,6 +180,38 @@ describe('theViewLabel interface', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.find('.stub-entry').attributes('data-uuid')).toBe('vis-a')
-    expect(wrapper.text()).not.toContain('No Entries Matched')
+    expect(wrapper.text()).not.toContain('No entries matched')
+  })
+
+  it('pressing 1 toggles Vis on the current entry', async () => {
+    const wrapper = mountLabelView()
+    const store = useAnnotationStore()
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: '1' }))
+    await wrapper.vm.$nextTick()
+    expect(store.isClassified('vis-a', Category.Vis)).toBe(true)
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: '1' }))
+    await wrapper.vm.$nextTick()
+    expect(store.isClassified('vis-a', Category.Vis)).toBe(false)
+  })
+
+  it('pressing 2 replaces Vis with Not Vis via the pair rule', async () => {
+    const wrapper = mountLabelView()
+    const store = useAnnotationStore()
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: '1' }))
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: '2' }))
+    await wrapper.vm.$nextTick()
+
+    expect(store.isClassified('vis-a', Category.Vis)).toBe(false)
+    expect(store.isClassified('vis-a', Category.NotVis)).toBe(true)
+  })
+
+  it('shows subtle key hints on label and paging buttons', () => {
+    const wrapper = mountLabelView()
+    expect(wrapper.text()).toMatch(/Vis\s*1/)
+    expect(wrapper.text()).toMatch(/Previous\s*A/)
+    expect(wrapper.text()).toMatch(/Next\s*D/)
   })
 })

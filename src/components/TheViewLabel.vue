@@ -6,6 +6,50 @@ import { useStore as useMessageStore } from '~/stores/message'
 import { useStore as useSelectorStore } from '~/stores/selector'
 import { useStore as useVisStore } from '~/stores/visualization'
 
+type LabelTone = 'yes' | 'no' | 'neutral' | 'confident'
+
+interface LabelControl {
+  category: Category
+  key: string
+  label: string
+  title: string
+  tone: LabelTone
+  icon?: 'check' | 'xmark' | 'question'
+}
+
+/** Mockup map: odd = affirmative column, even = negative; 9/0 = Unsure/Confident. */
+const labelControls: LabelControl[] = [
+  { category: Category.Vis, key: '1', label: 'Vis', title: 'This is a visualization', tone: 'yes', icon: 'check' },
+  { category: Category.NotVis, key: '2', label: 'Not Vis', title: 'This is not a visualization', tone: 'no', icon: 'xmark' },
+  { category: Category.Map, key: '3', label: 'Map', title: 'This is a map', tone: 'yes', icon: 'check' },
+  { category: Category.NotMap, key: '4', label: 'Not Map', title: 'This is not a map', tone: 'no', icon: 'xmark' },
+  { category: Category.Text, key: '5', label: 'Text', title: 'This is mainly a text block', tone: 'yes', icon: 'check' },
+  { category: Category.NotText, key: '6', label: 'Not Text', title: 'This is not a mainly a text block', tone: 'no', icon: 'xmark' },
+  { category: Category.Table, key: '7', label: 'Table', title: 'This is mainly a table', tone: 'yes', icon: 'check' },
+  { category: Category.NotTable, key: '8', label: 'Not Table', title: 'This is not a mainly a table', tone: 'no', icon: 'xmark' },
+  { category: Category.Unsure, key: '9', label: 'Unsure', title: 'Not sure if the annotation is accurate', tone: 'neutral', icon: 'question' },
+  { category: Category.Confident, key: '0', label: 'Confident', title: 'Confident that the annotation is accurate', tone: 'confident' },
+]
+
+const labelRows = computed(() => {
+  const rows: LabelControl[][] = []
+  for (let i = 0; i < labelControls.length; i += 2) {
+    rows.push(labelControls.slice(i, i + 2))
+  }
+  return rows
+})
+
+const categoryByKey = Object.fromEntries(
+  labelControls.map((control) => [control.key, control.category]),
+) as Record<string, Category>
+
+const labelButtonClass = (tone: LabelTone): string => {
+  if (tone === 'yes') return 'btn-label'
+  if (tone === 'no') return 'btn-label-warn'
+  if (tone === 'confident') return 'btn-label-neutral'
+  return 'btn-label-neutral'
+}
+
 const { visualizations } = storeToRefs(useVisStore())
 
 const selectorStore = useSelectorStore()
@@ -78,7 +122,7 @@ const gotoUnlabeled = (): void => {
 const container = ref<HTMLDivElement | null>(null)
 const isVisible = useElementVisibility(container)
 
-const shouldHandleNavKey = (event: KeyboardEvent): boolean => (
+const shouldHandleHotkey = (event: KeyboardEvent): boolean => (
   isVisible.value
   && !event.metaKey
   && !event.ctrlKey
@@ -86,204 +130,174 @@ const shouldHandleNavKey = (event: KeyboardEvent): boolean => (
   && !isFocusedElementEditable()
 )
 
-onKeyStroke('a', (event) => {
-  if (!shouldHandleNavKey(event)) return
-  showNext(-shownNumber.value)
-})
-onKeyStroke('d', (event) => {
-  if (!shouldHandleNavKey(event)) return
-  showNext(shownNumber.value)
-})
-
 const clickCategory = (uuid: string, category: Category): void => {
   if (!isClassified(uuid, category)) addClassification(uuid, category)
   else removeClassification(uuid, category)
 }
+
+/** Apply a label hotkey to the first shown entry (paging shows one by default). */
+const applyCategoryHotkey = (category: Category): void => {
+  const entry = shown.value[0]
+  if (entry === undefined) return
+  clickCategory(entry.uuid, category)
+}
+
+onKeyStroke('a', (event) => {
+  if (!shouldHandleHotkey(event)) return
+  event.preventDefault()
+  showNext(-shownNumber.value)
+})
+onKeyStroke('d', (event) => {
+  if (!shouldHandleHotkey(event)) return
+  event.preventDefault()
+  showNext(shownNumber.value)
+})
+
+for (const key of Object.keys(categoryByKey)) {
+  onKeyStroke(key, (event) => {
+    if (!shouldHandleHotkey(event)) return
+    event.preventDefault()
+    applyCategoryHotkey(categoryByKey[key]!)
+  })
+}
+
+const positionLabel = computed(() => {
+  if (matched.value.length === 0) return '0 / 0'
+  return `${startIndex.value + 1} / ${matched.value.length}`
+})
 </script>
 
 <template>
   <div
     ref="container"
     view-container
+    class="border-t-0 rounded-t-none grow min-h-0"
   >
-    <div view-header>
-      <div class="i-fa6-solid:table my-auto" />
-      <div class="font-bold">
+    <div
+      data-testid="entries-stats"
+      view-header
+    >
+      <div class="i-fa6-solid:table text-gray-500 shrink-0" />
+      <div strip-label>
         Entries
       </div>
       <div class="grow" />
-      <div class="text-sm my-auto pr-4 flex">
-        <div class="font-bold">
-          {{ nInPageLabeled }}/{{ shown.length }}&nbsp;
-        </div>
-        in page labeled
-      </div>
-      <div
-        v-if="selectors.length !== 0"
-        class="text-sm my-auto pr-4 flex"
-      >
-        #matched:&nbsp;
-        <div class="font-bold">
-          {{ matched.length }}
-        </div>
-      </div>
-      <div class="text-sm my-auto pr-4 flex">
-        #entries:&nbsp;
-        <div class="font-bold">
-          {{ visualizations.length }}
-        </div>
+      <div class="strip-meta flex flex-wrap gap-x-1.5 gap-y-1 items-center">
+        <span>
+          <span strip-meta-em>{{ nInPageLabeled }}/{{ shown.length }}</span>
+          labeled on page
+        </span>
+        <template v-if="selectors.length !== 0">
+          <span
+            strip-sep
+            aria-hidden="true"
+          >·</span>
+          <span>
+            <span strip-meta-em>{{ matched.length }}</span>
+            matched
+          </span>
+        </template>
+        <span
+          strip-sep
+          aria-hidden="true"
+        >·</span>
+        <span>
+          <span strip-meta-em>{{ visualizations.length }}</span>
+          entries
+        </span>
       </div>
     </div>
     <div
       v-if="shown.length !== 0"
       ref="content"
-      class="scroll-smooth overflow-auto"
+      class="scroll-smooth flex grow flex-col min-h-0 overflow-auto"
     >
       <VDataEntry
-        v-for="(d, i) in shown"
+        v-for="d in shown"
         :key="d.uuid"
         :datum="d"
-        :index="startIndex + i + 1"
-        class="m-1 flex-1 basis-4/5"
+        class="grow min-h-0"
       >
-        <div class="my-2 flex flex-col gap-2 w-100">
-          <div class="flex gap-2">
+        <div class="flex flex-col gap-1.5 w-full">
+          <div
+            v-for="(row, rowIndex) in labelRows"
+            :key="rowIndex"
+            class="flex gap-1.5"
+          >
             <button
-              btn
-              class="text-xl flex flex-1 gap-2 items-center"
-              title="This is a visualization"
-              :ring="isClassified(d.uuid, Category.Vis) ? '2 black dark:white' : ''"
-              @click="clickCategory(d.uuid, Category.Vis)"
+              v-for="control in row"
+              :key="control.category"
+              type="button"
+              class="flex flex-1 gap-1.5 items-center justify-center" :class="[
+                labelButtonClass(control.tone),
+                control.tone === 'confident' ? 'bg-blue-500 hover:bg-blue-600 border-blue-700' : '',
+              ]"
+              :title="`${control.title} (${control.key})`"
+              :ring="isClassified(d.uuid, control.category) ? '2 black dark:white' : ''"
+              @click="clickCategory(d.uuid, control.category)"
             >
-              <div class="i-fa6-solid:check" />
-              <div>Vis</div>
-            </button>
-            <button
-              btn-warn
-              class="text-xl flex flex-1 gap-2 items-center"
-              title="This is not a visualization"
-              :ring="isClassified(d.uuid, Category.NotVis) ? '2 black dark:white' : ''"
-              @click="clickCategory(d.uuid, Category.NotVis)"
-            >
-              <div class="i-fa6-solid:xmark" />
-              <div>Not Vis</div>
-            </button>
-          </div>
-          <div class="flex gap-2">
-            <button
-              btn
-              class="text-xl flex flex-1 gap-2 items-center"
-              title="This is a map"
-              :ring="isClassified(d.uuid, Category.Map) ? '2 black dark:white' : ''"
-              @click="clickCategory(d.uuid, Category.Map)"
-            >
-              <div class="i-fa6-solid:check" />
-              <div>Map</div>
-            </button>
-            <button
-              btn-warn
-              class="text-xl flex flex-1 gap-2 items-center"
-              title="This is not a map"
-              :ring="isClassified(d.uuid, Category.NotMap) ? '2 black dark:white' : ''"
-              @click="clickCategory(d.uuid, Category.NotMap)"
-            >
-              <div class="i-fa6-solid:xmark" />
-              <div>Not Map</div>
-            </button>
-          </div>
-          <div class="flex gap-2">
-            <button
-              btn
-              class="text-xl flex flex-1 gap-2 items-center"
-              title="This is mainly a text block"
-              :ring="isClassified(d.uuid, Category.Text) ? '2 black dark:white' : ''"
-              @click="clickCategory(d.uuid, Category.Text)"
-            >
-              <div class="i-fa6-solid:check" />
-              <div>Text</div>
-            </button>
-            <button
-              btn-warn
-              class="text-xl flex flex-1 gap-2 items-center"
-              title="This is not a mainly a text block"
-              :ring="isClassified(d.uuid, Category.NotText) ? '2 black dark:white' : ''"
-              @click="clickCategory(d.uuid, Category.NotText)"
-            >
-              <div class="i-fa6-solid:xmark" />
-              <div>Not Text</div>
-            </button>
-          </div>
-          <div class="flex gap-2">
-            <button
-              btn
-              class="text-xl flex flex-1 gap-2 items-center"
-              title="This is mainly a table"
-              :ring="isClassified(d.uuid, Category.Table) ? '2 black dark:white' : ''"
-              @click="clickCategory(d.uuid, Category.Table)"
-            >
-              <div class="i-fa6-solid:check" />
-              <div>Table</div>
-            </button>
-            <button
-              btn-warn
-              class="text-xl flex flex-1 gap-2 items-center"
-              title="This is not a mainly a table"
-              :ring="isClassified(d.uuid, Category.NotTable) ? '2 black dark:white' : ''"
-              @click="clickCategory(d.uuid, Category.NotTable)"
-            >
-              <div class="i-fa6-solid:xmark" />
-              <div>Not Table</div>
-            </button>
-          </div>
-          <div class="flex gap-2">
-            <button
-              btn-neutral
-              class="text-xl flex flex-1 gap-2 items-center"
-              title="Not sure if the annotation is accurate"
-              :ring="isClassified(d.uuid, Category.Unsure) ? '2 black dark:white' : ''"
-              @click="clickCategory(d.uuid, Category.Unsure)"
-            >
-              <div class="i-fa6-solid:question" />
-              <div>Unsure</div>
-            </button>
-            <button
-              btn-neutral
-              class="text-xl flex flex-1 gap-2 items-center"
-              bg="blue-400 hover:blue-500"
-              :ring="isClassified(d.uuid, Category.Confident) ? '2 black dark:white' : ''"
-              title="Confident that the annotation is accurate"
-              @click="clickCategory(d.uuid, Category.Confident)"
-            >
-              <div>Confident</div>
+              <div
+                v-if="control.icon === 'check'"
+                class="i-fa6-solid:check"
+              />
+              <div
+                v-else-if="control.icon === 'xmark'"
+                class="i-fa6-solid:xmark"
+              />
+              <div
+                v-else-if="control.icon === 'question'"
+                class="i-fa6-solid:question"
+              />
+              <div>{{ control.label }}</div>
+              <span
+                kbd
+                aria-hidden="true"
+              >{{ control.key }}</span>
             </button>
           </div>
         </div>
+        <template #image-footer>
+          <div class="flex flex-wrap gap-1.5 items-center">
+            <button
+              type="button"
+              btn-secondary
+              :title="`Show previous ${shownNumber} entries (A)`"
+              :disabled="startIndex === 0"
+              @click="showNext(-shownNumber)"
+            >
+              Previous
+              <span
+                kbd
+                aria-hidden="true"
+              >A</span>
+            </button>
+            <button
+              type="button"
+              btn-secondary
+              :title="`Show next ${shownNumber} entries (D)`"
+              :disabled="startIndex + shownNumber >= matched.length"
+              @click="showNext(shownNumber)"
+            >
+              Next
+              <span
+                kbd
+                aria-hidden="true"
+              >D</span>
+            </button>
+            <button
+              type="button"
+              btn-secondary
+              title="Go to First Unlabeled"
+              @click="gotoUnlabeled"
+            >
+              Go to First Unlabeled
+            </button>
+            <span class="strip-meta ml-auto">
+              {{ positionLabel }}
+            </span>
+          </div>
+        </template>
       </VDataEntry>
-      <div class="m-1 flex gap-1">
-        <button
-          btn
-          :title="`Show previous ${shownNumber} entries`"
-          :disabled="startIndex === 0"
-          @click="showNext(-shownNumber)"
-        >
-          <div>previous {{ shownNumber }} {{ shownNumber === 1 ? 'entry' : 'entries' }}</div>
-        </button>
-        <button
-          btn
-          :title="`Show next ${shownNumber} entries`"
-          :disabled="startIndex + shownNumber >= matched.length"
-          @click="showNext(shownNumber)"
-        >
-          <div>next {{ shownNumber }} {{ shownNumber === 1 ? 'entry' : 'entries' }}</div>
-        </button>
-        <button
-          btn
-          title="goto first unlabeled"
-          @click="gotoUnlabeled"
-        >
-          <div>goto first unlabeled</div>
-        </button>
-      </div>
     </div>
     <div
       v-else

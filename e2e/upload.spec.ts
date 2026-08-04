@@ -10,7 +10,7 @@ const uploadFixture = async (
   page: import('@playwright/test').Page,
   filename: string,
 ): Promise<void> => {
-  const upload = page.getByRole('button', { name: 'upload', exact: true })
+  const upload = page.getByRole('button', { name: 'Upload', exact: true })
   await expect(upload).toBeVisible()
   // Avoid racing Vite's first-load dependency optimize (can drop the synthetic file input).
   await page.waitForLoadState('networkidle')
@@ -24,7 +24,7 @@ const downloadAnnotations = async (
   page: import('@playwright/test').Page,
 ): Promise<unknown[]> => {
   const downloadPromise = page.waitForEvent('download')
-  await page.getByRole('button', { name: 'download', exact: true }).click()
+  await page.getByRole('button', { name: 'Download', exact: true }).click()
   const download = await downloadPromise
   const filePath = await download.path()
   expect(filePath).toBeTruthy()
@@ -44,7 +44,7 @@ test.describe('annotation upload schema checks', () => {
   test('rejects invalid schema without replacing existing annotations', async ({ page }) => {
     await openAnnotateApp(page)
 
-    const inPageLabeled = page.locator('[view-header]').filter({ hasText: 'in page labeled' })
+    const inPageLabeled = page.getByTestId('entries-stats')
     await page.getByRole('button', { name: 'Vis', exact: true }).click()
     await expect(inPageLabeled).toContainText('1/1')
 
@@ -57,7 +57,7 @@ test.describe('annotation upload schema checks', () => {
   test('rejects invalid JSON without replacing existing annotations', async ({ page }) => {
     await openAnnotateApp(page)
 
-    const inPageLabeled = page.locator('[view-header]').filter({ hasText: 'in page labeled' })
+    const inPageLabeled = page.getByTestId('entries-stats')
     await page.getByRole('button', { name: 'Vis', exact: true }).click()
     await expect(inPageLabeled).toContainText('1/1')
 

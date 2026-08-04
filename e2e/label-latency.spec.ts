@@ -18,12 +18,12 @@ test.describe('label click latency', () => {
 
     // Warm-up (first paint / JIT); not scored.
     await measureCategoryRingLatencyMs(page, 'Confident')
-    await page.getByRole('button', { name: /next 1 entry/i }).click()
+    await page.getByRole('button', { name: 'Next', exact: true }).click()
 
     const samples: number[] = []
     for (let i = 0; i < SAMPLES; i += 1) {
       samples.push(await measureCategoryRingLatencyMs(page, 'Confident'))
-      await page.getByRole('button', { name: /next 1 entry/i }).click()
+      await page.getByRole('button', { name: 'Next', exact: true }).click()
     }
 
     const mean = samples.reduce((a, b) => a + b, 0) / samples.length

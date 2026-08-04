@@ -8,7 +8,7 @@ import { createTestPinia } from '../helpers/pinia'
 const mountEntry = (datum: ReturnType<typeof makeVisualization>) => {
   const pinia = createTestPinia()
   return mount(VDataEntry, {
-    props: { datum, index: 0 },
+    props: { datum },
     global: {
       plugins: [pinia],
       stubs: { VObjectInspector: true },
@@ -19,6 +19,16 @@ const mountEntry = (datum: ReturnType<typeof makeVisualization>) => {
 describe('vDataEntry', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+  })
+
+  it('does not show the entry index under the title', () => {
+    const wrapper = mountEntry(makeVisualization({
+      uuid: 'v1',
+      displayName: 'Trade chart',
+    }))
+
+    expect(wrapper.text()).toContain('Trade chart')
+    expect(wrapper.text()).not.toMatch(/#\d+/)
   })
 
   it('does not throw when downloadUrl is malformed and hides the image', () => {
@@ -41,6 +51,18 @@ describe('vDataEntry', () => {
 
     expect(wrapper.text()).toContain('served over HTTP')
     expect(wrapper.find('img').exists()).toBe(false)
+  })
+
+  it('shows a loading state until the image loads or fails', async () => {
+    const wrapper = mountEntry(makeVisualization({
+      uuid: 'v1',
+      downloadUrl: 'https://example.com/img.png',
+    }))
+
+    expect(wrapper.text()).toContain('Loading image')
+    expect(wrapper.find('img').exists()).toBe(true)
+    await wrapper.find('img').trigger('load')
+    expect(wrapper.text()).not.toContain('Loading image')
   })
 
   it('shows a fallback when the image fails to load', async () => {
@@ -84,6 +106,6 @@ describe('vDataEntry', () => {
     await wrapper.find('button[title="Copy raw metadata of this entry"]').trigger('click')
     await Promise.resolve()
 
-    expect(messages.messages.some((d) => d.content.includes('Failed to copy'))).toBe(true)
+    expect(messages.messages.some((d) => d.content.includes('Failed to copy metadata'))).toBe(true)
   })
 })

@@ -1,56 +1,31 @@
-import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { defineComponent, nextTick } from 'vue'
 import { useSignInNotice } from '~/composables/useSignInNotice'
-import { useStore as useMessageStore } from '~/stores/message'
+import { MessageType, useStore as useMessageStore } from '~/stores/message'
 import { useStore as useUserStore } from '~/stores/user'
-import { createTestPinia } from '../helpers/pinia'
-
-const isSignInNotice = (content: string): boolean => (
-  content.includes('Please set a name')
-)
-
-const mountNoticeHost = () => {
-  const pinia = createTestPinia()
-  const Host = defineComponent({
-    setup() {
-      useSignInNotice()
-      return () => null
-    },
-  })
-  return mount(Host, { global: { plugins: [pinia] } })
-}
+import { createTestPinia, resetInterfaceStores } from '../helpers/pinia'
 
 describe('useSignInNotice', () => {
   beforeEach(() => {
-    localStorage.clear()
+    createTestPinia()
+    resetInterfaceStores()
+    useMessageStore().$patch({ messages: [] })
   })
 
-  it('shows a notice when unsigned and removes it after sign-in', async () => {
-    mountNoticeHost()
-    const messages = useMessageStore()
-    const user = useUserStore()
+  it('enqueues an info snackbar when unsigned', () => {
+    const { notifyIfUnsigned } = useSignInNotice()
+    notifyIfUnsigned()
 
-    expect(messages.messages.some((d) => isSignInNotice(d.content))).toBe(true)
-
-    user.trySignIn('alice')
-    await nextTick()
-
-    expect(messages.messages.some((d) => isSignInNotice(d.content))).toBe(false)
+    const messages = useMessageStore().messages
+    expect(messages).toHaveLength(1)
+    expect(messages[0]?.type).toBe(MessageType.Info)
+    expect(messages[0]?.content).toMatch(/Set a Name/i)
   })
 
-  it('does not add duplicate notices while still signed out', async () => {
-    mountNoticeHost()
-    const messages = useMessageStore()
-    const user = useUserStore()
+  it('does not enqueue when a name is already set', () => {
+    useUserStore().trySignIn('alice')
+    const { notifyIfUnsigned } = useSignInNotice()
+    notifyIfUnsigned()
 
-    user.trySignIn('alice')
-    await nextTick()
-    user.signOut()
-    await nextTick()
-    user.signOut()
-    await nextTick()
-
-    expect(messages.messages.filter((d) => isSignInNotice(d.content))).toHaveLength(1)
+    expect(useMessageStore().messages).toHaveLength(0)
   })
 })

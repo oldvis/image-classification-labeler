@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTitle } from '@vueuse/core'
 
-useTitle('404 · OldVisOnline')
+useTitle('404 · OldVis')
 </script>
 
 <template>

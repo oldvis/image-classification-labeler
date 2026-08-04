@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { useStore as useMessageStore } from '~/stores/message'
+import { MessageType, useStore as useMessageStore } from '~/stores/message'
 import { createTestPinia } from '../helpers/pinia'
 
 describe('message store', () => {
@@ -15,5 +15,13 @@ describe('message store', () => {
     store.removeMessage('missing-uuid')
 
     expect(store.messages).toEqual(before)
+  })
+
+  it('addInfoMessage enqueues an Info-typed message', () => {
+    const store = useMessageStore()
+    store.addInfoMessage('nudge')
+    expect(store.messages).toHaveLength(1)
+    expect(store.messages[0]?.type).toBe(MessageType.Info)
+    expect(store.messages[0]?.content).toBe('nudge')
   })
 })

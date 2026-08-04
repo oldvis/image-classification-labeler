@@ -3,10 +3,17 @@ import { useTitle } from '@vueuse/core'
 import { useDatasetGate } from '~/composables/useDatasetGate'
 import { useSignInNotice } from '~/composables/useSignInNotice'
 
-useTitle('Classify · OldVisOnline')
-useSignInNotice()
+useTitle('Classify · OldVis')
 
+const { notifyIfUnsigned } = useSignInNotice()
 const { showLoading, error, loadDatasets } = useDatasetGate()
+
+watch(showLoading, (loading, wasLoading) => {
+  if (wasLoading === true && loading === false && error.value === null) {
+    notifyIfUnsigned()
+  }
+})
+
 void loadDatasets()
 </script>
 
@@ -36,11 +43,11 @@ void loadDatasets()
   </div>
   <div
     v-else
-    class="m-1 grow gap-1 overflow-auto"
+    class="grow min-h-0 overflow-hidden"
     flex="~ col"
   >
-    <TheViewSelectors />
-    <TheViewLabel class="grow" />
-    <TheViewLabelProgress />
+    <TheViewSelectors class="shrink-0" />
+    <TheViewLabel class="grow min-h-0" />
+    <TheViewLabelProgress class="shrink-0" />
   </div>
 </template>

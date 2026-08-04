@@ -9,11 +9,13 @@ const { isSignedIn, name: signedInName } = storeToRefs(userStore)
 const { signOut, trySignIn } = userStore
 const { addErrorMessage, addSuccessMessage } = useMessageStore()
 const name = ref('')
-const onClickSaveName = () => {
+
+const onSubmit = (): void => {
   trySignIn(name.value)
   if (isSignedIn.value) {
     addSuccessMessage('Name saved')
     dialog.value = false
+    name.value = ''
   }
   else {
     addErrorMessage('Name required')
@@ -26,36 +28,55 @@ const onClickSaveName = () => {
     <template #activator>
       <button
         v-if="!isSignedIn"
-        icon-btn
-        class="mx-2 px-2 border-x border-gray-200"
+        type="button"
+        btn-secondary
+        class="flex gap-1 items-center"
+        title="Set a local annotator name for new labels"
         @click="dialog = !dialog"
       >
-        Set name
+        <div class="i-fa6-regular:user my-auto" />
+        <span>Set annotator name</span>
       </button>
       <div
         v-else
-        class="mx-2 my-auto px-2 border-x border-gray-200"
+        class="flex gap-1 items-center"
       >
-        Hi, {{ signedInName }}
         <button
-          icon-btn
-          class="pl-2"
+          type="button"
+          btn-secondary
+          class="flex gap-1 items-center"
+          title="Change annotator name"
+          @click="dialog = !dialog"
+        >
+          <div class="i-fa6-regular:user my-auto" />
+          <span>Hi, {{ signedInName }}</span>
+        </button>
+        <button
+          type="button"
+          btn-ghost
+          title="Clear annotator name"
           @click="signOut"
         >
-          Clear name
+          Clear
         </button>
       </div>
     </template>
     <template #default>
-      <div
-        class="p-4 rounded max-w-md shadow"
-        bg="white dark:gray-700"
+      <form
+        dialog-panel
+        role="dialog"
+        aria-labelledby="annotator-name-title"
+        @submit.prevent="onSubmit"
       >
-        <div class="flex">
-          <div class="text-xl font-bold">
-            Set name
+        <div class="status-strip border-b border-gray-200 dark:border-gray-700">
+          <div
+            id="annotator-name-title"
+            strip-label
+          >
+            Annotator name
           </div>
           <button
+            type="button"
             icon-btn
             class="ml-auto"
             title="Close"
@@ -64,34 +85,44 @@ const onClickSaveName = () => {
             <div class="i-fa6-solid:xmark" />
           </button>
         </div>
-        <div class="p-4">
-          <div class="space-y-6">
-            <div>
-              <label
-                for="user"
-                class="mb-2 block"
-              >
-                Name
-              </label>
-              <input
-                id="user"
-                v-model="name"
-                placeholder="Name"
-                required
-                class="text-sm p-2.5 rounded dark:placeholder-gray-400"
-                bg="gray-50 dark:gray-600"
-                border="~ gray-300 dark:gray-500"
-              >
-            </div>
-            <button
-              btn
-              @click="onClickSaveName"
-            >
-              save
-            </button>
-          </div>
+
+        <div dialog-body>
+          <label
+            for="user"
+            class="text-sm font-semibold"
+          >
+            Name
+          </label>
+          <input
+            id="user"
+            v-model="name"
+            name="name"
+            placeholder="e.g. Alex"
+            required
+            autocomplete="nickname"
+            dialog-field
+          >
+          <p class="strip-meta m-0">
+            Shown locally only. Saved annotations use a generated id.
+          </p>
         </div>
-      </div>
+
+        <div class="status-strip border-t border-gray-200 gap-1.5 justify-end dark:border-gray-700">
+          <button
+            type="button"
+            btn-secondary
+            @click="dialog = false"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            btn
+          >
+            Save
+          </button>
+        </div>
+      </form>
     </template>
   </VDialog>
 </template>

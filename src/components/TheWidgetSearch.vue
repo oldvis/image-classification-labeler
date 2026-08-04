@@ -16,19 +16,21 @@ onKeyStroke('Enter', () => {
 </script>
 
 <template>
-  <div class="flex relative">
+  <div class="flex items-center relative">
     <input
       ref="target"
       v-model="input"
       type="text"
-      class="text-sm my-1 pr-6 w-full"
+      class="pr-7 min-w-44 w-48"
       placeholder="Search"
       required
       input-area
     >
     <button
+      type="button"
       icon-btn
-      class="pr-1 h-full right-0 top-0 absolute"
+      class="right-0.5 absolute"
+      title="Search"
       @click="onSearch"
     >
       <div class="i-fa6-solid:magnifying-glass" />

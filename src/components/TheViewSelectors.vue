@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useStore } from '~/stores/selector'
+import { SelectorType, useStore } from '~/stores/selector'
 
 const store = useStore()
 const { selectors } = storeToRefs(store)
@@ -10,59 +10,74 @@ const {
   toggleLabeledSelector,
   toggleUnsureSelector,
 } = store
+
+const hasSelectorType = (type: SelectorType): boolean => (
+  selectors.value.some((d) => d.type === type)
+)
 </script>
 
 <template>
   <div
-    class="flex flex-wrap gap-1 items-center"
-    border="~ gray-200"
+    status-strip
+    border="b gray-200 dark:gray-700"
   >
-    <div class="text-sm p-1 flex shrink-0 gap-1">
-      <div class="i-fa6-solid:filter my-auto" />
-      <div class="font-bold my-auto">
+    <div class="flex shrink-0 gap-1.5 items-center">
+      <div class="i-fa6-solid:filter text-gray-500 my-auto" />
+      <div strip-label>
         Selectors
       </div>
     </div>
-    <div class="flex basis-full min-w-0 overflow-x-auto md:grow md:basis-auto">
+    <div
+      class="flex grow gap-1.5 min-w-0 items-center overflow-y-hidden"
+      :class="selectors.length > 0 ? 'overflow-x-auto' : 'overflow-x-hidden'"
+    >
+      <template v-if="selectors.length === 0">
+        <div class="strip-meta px-1">
+          No Filters
+        </div>
+      </template>
       <template
         v-for="(selector, i) in selectors"
         :key="selector.uuid"
       >
-        <div v-if="i !== 0" class="my-auto">
-          ∩
-        </div>
+        <span
+          v-if="i !== 0"
+          class="strip-meta text-gray-400 shrink-0"
+          title="AND"
+        >∩</span>
         <VSelector
           :selector="selector"
-          class="my-auto text-nowrap"
+          class="shrink-0"
           @remove-selector="removeSelector(selector.uuid)"
         />
       </template>
     </div>
-    <div class="grow hidden md:block" />
-    <button
-      btn
-      class="my-1 flex shrink-0 gap-1 items-center"
-      @click="toggleUnlabeledSelector"
-    >
-      <div class="i-fa6-solid:magnifying-glass" />
-      <div>UnLabeled</div>
-    </button>
-    <button
-      btn
-      class="my-1 flex shrink-0 gap-1 items-center"
-      @click="toggleLabeledSelector"
-    >
-      <div class="i-fa6-solid:magnifying-glass" />
-      <div>Labeled</div>
-    </button>
-    <button
-      btn
-      class="my-1 flex shrink-0 gap-1 items-center"
-      @click="toggleUnsureSelector"
-    >
-      <div class="i-fa6-solid:magnifying-glass" />
-      <div>Unsure</div>
-    </button>
-    <TheWidgetSearch m="r-1" class="shrink-0" />
+    <div class="flex shrink-0 flex-wrap gap-1 items-center">
+      <button
+        type="button"
+        :class="hasSelectorType(SelectorType.Unlabeled) ? 'pill-on' : 'pill'"
+        title="Show unlabeled entries only"
+        @click="toggleUnlabeledSelector"
+      >
+        Unlabeled
+      </button>
+      <button
+        type="button"
+        :class="hasSelectorType(SelectorType.Labeled) ? 'pill-on' : 'pill'"
+        title="Show labeled entries only"
+        @click="toggleLabeledSelector"
+      >
+        Labeled
+      </button>
+      <button
+        type="button"
+        :class="hasSelectorType(SelectorType.Unsure) ? 'pill-on' : 'pill'"
+        title="Show unsure entries only"
+        @click="toggleUnsureSelector"
+      >
+        Unsure
+      </button>
+      <TheWidgetSearch class="shrink-0" />
+    </div>
   </div>
 </template>

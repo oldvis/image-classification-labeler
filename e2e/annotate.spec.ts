@@ -2,13 +2,13 @@ import { expect, test } from '@playwright/test'
 import { openAnnotateApp } from './helpers/app'
 
 const inPageLabeled = (page: import('@playwright/test').Page) => (
-  page.locator('[view-header]').filter({ hasText: 'in page labeled' })
+  page.getByTestId('entries-stats')
 )
 
 test.describe('annotate smokes', () => {
   test('loads annotate view with category buttons', async ({ page }) => {
     await openAnnotateApp(page)
-    await expect(page.getByText('Entries', { exact: true })).toBeVisible()
+    await expect(page.getByTestId('entries-stats')).toBeVisible()
     await expect(page.getByText('Progress', { exact: true })).toBeVisible()
 
     await expect(page.getByRole('button', { name: 'Vis', exact: true })).toBeVisible()
@@ -23,13 +23,13 @@ test.describe('annotate smokes', () => {
     await expect(vis).toHaveAttribute('ring', '2 black dark:white')
     await expect(inPageLabeled(page)).toContainText('1/1')
 
-    const next = page.getByRole('button', { name: /next 1 entry/i })
+    const next = page.getByRole('button', { name: 'Next', exact: true })
     await next.click()
     // After moving off the labeled entry, in-page labeled count returns to 0/1
     await expect(inPageLabeled(page)).toContainText('0/1')
 
     const downloadPromise = page.waitForEvent('download')
-    await page.getByRole('button', { name: 'download', exact: true }).click()
+    await page.getByRole('button', { name: 'Download', exact: true }).click()
     const download = await downloadPromise
     expect(download.suggestedFilename()).toBe('annotations.json')
 
@@ -53,7 +53,7 @@ test.describe('annotate smokes', () => {
     await expect(inPageLabeled(page)).toContainText('1/1')
 
     await page.reload()
-    await page.getByText('Entries', { exact: true }).waitFor({ state: 'visible', timeout: 60_000 })
+    await page.getByTestId('entries-stats').waitFor({ state: 'visible', timeout: 60_000 })
     await expect(inPageLabeled(page)).toContainText('0/1')
     await expect(vis).not.toHaveAttribute('ring', '2 black dark:white')
   })

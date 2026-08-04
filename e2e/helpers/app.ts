@@ -21,7 +21,7 @@ export async function stubRemoteImages(page: Page): Promise<void> {
 
 /**
  * Reset persisted Pinia state.
- * Pre-sign-in so `useSignInNotice` does not leave an infinite error toast.
+ * Pre-set a local name so the identity snackbar stays out of annotate smokes.
  */
 export async function clearAppStorage(page: Page): Promise<void> {
   await page.addInitScript(() => {
@@ -97,7 +97,7 @@ export async function openAnnotateApp(page: Page): Promise<void> {
   await stubRemoteImages(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
-  await page.getByText('Entries', { exact: true }).waitFor({ state: 'visible', timeout: 60_000 })
+  await page.getByTestId('entries-stats').waitFor({ state: 'visible', timeout: 60_000 })
   await page.getByRole('button', { name: 'Vis', exact: true }).waitFor({ state: 'visible' })
 }
 
@@ -114,12 +114,10 @@ export async function openAnnotateAppWithRealAssets(page: Page): Promise<void> {
   await stubRemoteImages(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
-  await page.getByText('Entries', { exact: true }).waitFor({ state: 'visible', timeout: 180_000 })
+  await page.getByTestId('entries-stats').waitFor({ state: 'visible', timeout: 180_000 })
   await page.getByRole('button', { name: 'Vis', exact: true }).waitFor({ state: 'visible' })
-  await expect.poll(async () => {
-    const text = await page.locator('[view-header]').evaluate((el) => el.textContent ?? '')
-    return text.match(/#entries:\s*(\d+)/)?.[1] ?? ''
-  }).toBe('13511')
+  // Full catalog size (must not be the mini e2e fixture).
+  await expect(page.getByTestId('entries-stats')).toContainText('13511', { timeout: 180_000 })
 }
 
 /**

@@ -26,7 +26,7 @@ describe('theViewLabelProgress import/export wiring', () => {
       global: { plugins: [pinia] },
     })
 
-    await wrapper.findAll('button').find((b) => b.text() === 'download')!.trigger('click')
+    await wrapper.findAll('button').find((b) => b.text() === 'Download')!.trigger('click')
 
     expect(saveSpy).toHaveBeenCalledWith(store.annotations, 'annotations.json')
   })
@@ -44,7 +44,7 @@ describe('theViewLabelProgress import/export wiring', () => {
       global: { plugins: [pinia] },
     })
 
-    await wrapper.findAll('button').find((b) => b.text() === 'upload')!.trigger('click')
+    await wrapper.findAll('button').find((b) => b.text() === 'Upload')!.trigger('click')
     await Promise.resolve()
 
     expect(store.annotations).toEqual(uploaded)
@@ -65,7 +65,7 @@ describe('theViewLabelProgress import/export wiring', () => {
       global: { plugins: [pinia] },
     })
 
-    await wrapper.findAll('button').find((b) => b.text() === 'upload')!.trigger('click')
+    await wrapper.findAll('button').find((b) => b.text() === 'Upload')!.trigger('click')
     await Promise.resolve()
 
     expect(store.annotations).toEqual(existing)
@@ -85,13 +85,13 @@ describe('theViewLabelProgress import/export wiring', () => {
       global: { plugins: [pinia] },
     })
 
-    await wrapper.findAll('button').find((b) => b.text() === 'upload')!.trigger('click')
+    await wrapper.findAll('button').find((b) => b.text() === 'Upload')!.trigger('click')
     await Promise.resolve()
 
     expect(store.annotations).toEqual(existing)
   })
 
-  it('renders category progress counts from the store', () => {
+  it('renders category progress counts from the store', async () => {
     const pinia = createTestPinia()
     resetInterfaceStores()
     const store = useAnnotationStore()
@@ -105,8 +105,13 @@ describe('theViewLabelProgress import/export wiring', () => {
       global: { plugins: [pinia] },
     })
 
-    expect(wrapper.text()).toContain('#Vis/Not:')
+    expect(wrapper.text()).toContain('Labeled')
+    expect(wrapper.text()).toContain('Unsure')
+    expect(wrapper.text()).toContain('2')
+    expect(wrapper.text()).toContain('1')
+
+    await wrapper.findAll('button').find((b) => b.text() === 'Details')!.trigger('click')
+    expect(wrapper.text()).toContain('Vis/Not')
     expect(wrapper.text()).toContain('1 / 1')
-    expect(wrapper.text()).toContain('#Unsure:')
   })
 })

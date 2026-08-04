@@ -28,7 +28,7 @@ const isUnsureSelector = computed(() => (
 ))
 const text = computed(() => {
   if (isSearchSelector.value) {
-    return `search: '${(selector.value as Selector<SelectorType.Fuse>).query.pattern}'`
+    return (selector.value as Selector<SelectorType.Fuse>).query.pattern
   }
   if (isUnlabeledSelector.value) {
     return 'Unlabeled'
@@ -44,14 +44,19 @@ const text = computed(() => {
 </script>
 
 <template>
-  <div class="px-1 border border-gray-200 flex gap-1">
-    {{ text }}
+  <div chip>
+    <span
+      v-if="isSearchSelector"
+      class="text-gray-500 dark:text-gray-400"
+    >Search</span>
+    <span class="max-w-48 truncate">{{ text }}</span>
     <button
-      icon-btn
+      type="button"
+      class="base-btn p-0 opacity-75 inline-flex hover:text-teal-600 hover:opacity-100"
       title="Remove"
       @click="emit('removeSelector', selector)"
     >
-      <div class="i-fa6-solid:xmark m-auto" />
+      <div class="i-fa6-solid:xmark text-xs" />
     </button>
   </div>
 </template>

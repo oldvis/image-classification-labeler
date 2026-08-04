@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 export enum MessageType {
   Success = 'Success',
   Error = 'Error',
+  Info = 'Info',
 }
 
 export interface Message {
@@ -32,6 +33,9 @@ export const useStore = defineStore('message', {
     },
     addErrorMessage(content: string, timeout = 3000): void {
       this.addMessage(content, MessageType.Error, timeout)
+    },
+    addInfoMessage(content: string, timeout = 3000): void {
+      this.addMessage(content, MessageType.Info, timeout)
     },
     removeMessage(uuid: string): void {
       const index = this.messages.findIndex((d) => d.uuid === uuid)
