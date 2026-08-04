@@ -16,7 +16,7 @@ const faviconSrc = `${import.meta.env.BASE_URL}favicon.svg`
       OldVisOnline
     </span>
     <TheDialogLogin />
-    <div class="text-sm ml-auto gap-6 hidden items-center md:flex">
+    <div class="text-sm ml-auto flex gap-6 items-center">
       <button icon-btn @click="toggleDark()">
         <div i-fa6-regular:sun dark:i-fa6-regular:moon />
       </button>

@@ -1,7 +1,6 @@
 import type { IFuseOptions } from 'fuse.js'
 import type { Visualization } from '~/plugins/visualization'
 import Fuse from 'fuse.js'
-import { isEqual } from 'lodash'
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { v4 as uuidv4 } from 'uuid'
 import { useStore as useAnnotationStore } from './annotation'
@@ -117,7 +116,8 @@ export const useStore = defineStore('selectors', {
       }
       const duplicate = this.selectors.some((d) => (
         d.type === SelectorType.Fuse
-        && isEqual(d.query, { pattern: trimmed, options })
+        && d.query !== null
+        && d.query.pattern === trimmed
       ))
       if (duplicate) return false
       this.selectors.push(buildSearchSelector(trimmed, options))
@@ -125,14 +125,18 @@ export const useStore = defineStore('selectors', {
     },
     /**
      * Add/Remove a selector if selector(s)
-     * with the same query don't/do exist.
+     * with the same type (and Fuse pattern) don't/do exist.
      */
     toggleSelector(selector: Selector): void {
-      const match = this.selectors
-        .find((d) => (
-          selector.type === d.type
-          && isEqual(selector.query, d.query)
-        ))
+      const match = this.selectors.find((d) => {
+        if (selector.type !== d.type) return false
+        if (selector.type !== SelectorType.Fuse) return true
+        return (
+          selector.query !== null
+          && d.query !== null
+          && selector.query.pattern === d.query.pattern
+        )
+      })
       if (match === undefined) this.selectors.push(selector)
       else this.removeSelector(match.uuid)
     },

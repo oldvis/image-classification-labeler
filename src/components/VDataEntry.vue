@@ -20,8 +20,13 @@ const props = defineProps({
 
 const { datum } = toRefs(props)
 const showMetadata = ref(false)
+const imageFailed = ref(false)
 const { addSuccessMessage, addErrorMessage } = useStore()
 const { copy, copied } = useClipboard()
+
+watch(() => datum.value.downloadUrl, () => {
+  imageFailed.value = false
+})
 
 const onClickCopy = async () => {
   await copy(JSON.stringify(datum.value))
@@ -48,11 +53,11 @@ const safeHttpUrl = (url: string | null | undefined): string | null => {
   }
 }
 
-const isHttps = (url: string | null | undefined): boolean => {
-  const safe = safeHttpUrl(url)
-  if (safe === null) return false
-  return new URL(safe).protocol === 'https:'
-}
+const downloadUrlKind = computed((): 'https' | 'http' | 'unavailable' => {
+  const safe = safeHttpUrl(datum.value.downloadUrl)
+  if (safe === null) return 'unavailable'
+  return new URL(safe).protocol === 'https:' ? 'https' : 'http'
+})
 
 const viewHref = computed(() => safeHttpUrl(datum.value.viewUrl))
 const googleHref = computed(() => (
@@ -78,11 +83,22 @@ const googleHref = computed(() => (
     >
       <div class="basis-4/10">
         <img
-          v-if="isHttps(datum.downloadUrl)"
+          v-if="downloadUrlKind === 'https' && !imageFailed"
           :src="datum.downloadUrl ?? ''"
+          loading="lazy"
+          decoding="async"
+          @error="imageFailed = true"
         >
+        <span v-else-if="imageFailed">
+          Image failed to load.
+          Please click the URL button to view it.
+        </span>
+        <span v-else-if="downloadUrlKind === 'http'">
+          The image is served over HTTP (not HTTPS).
+          Please click the URL button to view it.
+        </span>
         <span v-else>
-          The image resource is not served with HTTPS.
+          The image URL is missing or invalid.
           Please click the URL button to view it.
         </span>
       </div>

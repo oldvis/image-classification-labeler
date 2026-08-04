@@ -14,16 +14,16 @@ const {
 
 <template>
   <div
-    class="flex gap-1"
+    class="flex flex-wrap gap-1 items-center"
     border="~ gray-200"
   >
-    <div class="text-sm p-1 flex gap-1">
+    <div class="text-sm p-1 flex shrink-0 gap-1">
       <div class="i-fa6-solid:filter my-auto" />
       <div class="font-bold my-auto">
         Selectors
       </div>
     </div>
-    <div class="flex overflow-auto">
+    <div class="flex basis-full min-w-0 overflow-x-auto md:grow md:basis-auto">
       <template
         v-for="(selector, i) in selectors"
         :key="selector.uuid"
@@ -38,10 +38,10 @@ const {
         />
       </template>
     </div>
-    <div class="grow" />
+    <div class="grow hidden md:block" />
     <button
       btn
-      class="my-1 flex gap-1 items-center"
+      class="my-1 flex shrink-0 gap-1 items-center"
       @click="toggleUnlabeledSelector"
     >
       <div class="i-fa6-solid:magnifying-glass" />
@@ -49,7 +49,7 @@ const {
     </button>
     <button
       btn
-      class="my-1 flex gap-1 items-center"
+      class="my-1 flex shrink-0 gap-1 items-center"
       @click="toggleLabeledSelector"
     >
       <div class="i-fa6-solid:magnifying-glass" />
@@ -57,7 +57,7 @@ const {
     </button>
     <button
       btn
-      class="my-1 flex gap-1 items-center"
+      class="my-1 flex shrink-0 gap-1 items-center"
       @click="toggleUnsureSelector"
     >
       <div class="i-fa6-solid:magnifying-glass" />

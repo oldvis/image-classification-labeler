@@ -9,14 +9,14 @@ const { isSignedIn, name: signedInName } = storeToRefs(userStore)
 const { signOut, trySignIn } = userStore
 const { addErrorMessage, addSuccessMessage } = useMessageStore()
 const name = ref('')
-const onClickSignIn = () => {
+const onClickSaveName = () => {
   trySignIn(name.value)
   if (isSignedIn.value) {
-    addSuccessMessage('Login Succeeded')
+    addSuccessMessage('Name saved')
     dialog.value = false
   }
   else {
-    addErrorMessage('Login Failed')
+    addErrorMessage('Name required')
   }
 }
 </script>
@@ -30,7 +30,7 @@ const onClickSignIn = () => {
         class="mx-2 px-2 border-x border-gray-200"
         @click="dialog = !dialog"
       >
-        Sign in
+        Set name
       </button>
       <div
         v-else
@@ -42,7 +42,7 @@ const onClickSignIn = () => {
           class="pl-2"
           @click="signOut"
         >
-          Sign out
+          Clear name
         </button>
       </div>
     </template>
@@ -53,7 +53,7 @@ const onClickSignIn = () => {
       >
         <div class="flex">
           <div class="text-xl font-bold">
-            Sign in
+            Set name
           </div>
           <button
             icon-btn
@@ -85,9 +85,9 @@ const onClickSignIn = () => {
             </div>
             <button
               btn
-              @click="onClickSignIn"
+              @click="onClickSaveName"
             >
-              Login
+              save
             </button>
           </div>
         </div>

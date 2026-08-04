@@ -7,7 +7,7 @@ import { useStore as useUserStore } from '~/stores/user'
 import { createTestPinia } from '../helpers/pinia'
 
 const isSignInNotice = (content: string): boolean => (
-  content.includes('Please sign in')
+  content.includes('Please set a name')
 )
 
 const mountNoticeHost = () => {

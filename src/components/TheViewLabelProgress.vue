@@ -54,16 +54,16 @@ const upload = async () => {
 
 <template>
   <div
-    class="px-1 flex gap-1"
+    class="px-1 flex flex-wrap gap-1 items-center"
     border="~ gray-200"
   >
-    <div class="text-sm flex gap-1">
+    <div class="text-sm flex shrink-0 gap-1">
       <div class="i-fa6-solid:list-check my-auto" />
       <div class="font-bold my-auto">
         Progress
       </div>
     </div>
-    <div class="text-sm flex grow gap-1">
+    <div class="text-sm flex grow flex-wrap gap-1 min-w-0">
       <template
         v-for="(d, i) in [
           { title: '#Vis/Not:', value: `${nVis} / ${nNotVis}` },
@@ -76,7 +76,7 @@ const upload = async () => {
         ]" :key="d.title"
       >
         <div v-if="i === 0" class="my-1 border-l border-gray-200" />
-        <div class="my-auto flex grow gap-1">
+        <div class="my-auto flex gap-1">
           {{ d.title }}
           <div class="font-bold">
             {{ d.value }}
@@ -85,7 +85,7 @@ const upload = async () => {
         <div class="my-1 border-l border-gray-200" />
       </template>
     </div>
-    <div class="my-1 flex gap-1">
+    <div class="my-1 flex shrink-0 gap-1">
       <button
         btn
         title="Download annotations.json (not saved in the browser)"

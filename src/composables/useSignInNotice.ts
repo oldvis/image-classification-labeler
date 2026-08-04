@@ -4,10 +4,10 @@ import { useStore as useMessageStore } from '~/stores/message'
 import { useStore as useUserStore } from '~/stores/user'
 
 /** Shown while unsigned; annotations store user UUID, not display name. */
-const SIGN_IN_NOTICE = 'Please sign in to attach your identity (user id) to new annotations.'
+const NAME_NOTICE = 'Please set a name so new annotations include your user id.'
 
 /**
- * Show/hide the sign-in notice when mount and sign-in status change.
+ * Show/hide the name-identity notice when mount and signed-in status change.
  */
 export const useSignInNotice = () => {
   const messageStore = useMessageStore()
@@ -16,20 +16,20 @@ export const useSignInNotice = () => {
 
   const noticeUuids = (): string[] => (
     messageStore.messages
-      .filter((d) => d.content === SIGN_IN_NOTICE)
+      .filter((d) => d.content === NAME_NOTICE)
       .map((d) => d.uuid)
   )
 
-  const updateSignInNotice = () => {
+  const updateNameNotice = () => {
     if (isSignedIn.value) {
       noticeUuids().forEach((uuid) => removeMessage(uuid))
       return
     }
     if (noticeUuids().length === 0) {
-      addErrorMessage(SIGN_IN_NOTICE, Number.POSITIVE_INFINITY)
+      addErrorMessage(NAME_NOTICE, Number.POSITIVE_INFINITY)
     }
   }
 
-  onMounted(updateSignInNotice)
-  watch(isSignedIn, updateSignInNotice)
+  onMounted(updateNameNotice)
+  watch(isSignedIn, updateNameNotice)
 }

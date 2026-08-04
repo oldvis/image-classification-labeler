@@ -28,7 +28,30 @@ describe('vDataEntry', () => {
       viewUrl: 'https://example.com/view',
     }))
 
-    expect(wrapper.text()).toContain('not served with HTTPS')
+    expect(wrapper.text()).toContain('missing or invalid')
+    expect(wrapper.find('img').exists()).toBe(false)
+  })
+
+  it('explains HTTP-only images instead of rendering them', () => {
+    const wrapper = mountEntry(makeVisualization({
+      uuid: 'v1',
+      downloadUrl: 'http://example.com/img.png',
+      viewUrl: 'https://example.com/view',
+    }))
+
+    expect(wrapper.text()).toContain('served over HTTP')
+    expect(wrapper.find('img').exists()).toBe(false)
+  })
+
+  it('shows a fallback when the image fails to load', async () => {
+    const wrapper = mountEntry(makeVisualization({
+      uuid: 'v1',
+      downloadUrl: 'https://example.com/img.png',
+    }))
+
+    expect(wrapper.find('img').exists()).toBe(true)
+    await wrapper.find('img').trigger('error')
+    expect(wrapper.text()).toContain('Image failed to load')
     expect(wrapper.find('img').exists()).toBe(false)
   })
 
