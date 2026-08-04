@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const faviconSrc = `${import.meta.env.BASE_URL}favicon.svg`
+</script>
+
 <template>
   <nav
     class="flex"
@@ -6,7 +10,7 @@
   >
     <img
       class="pr-1 h-28px"
-      src="/favicon.svg"
+      :src="faviconSrc"
     >
     <span class="text-lg font-bold">
       OldVisOnline

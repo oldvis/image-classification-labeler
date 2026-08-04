@@ -6,12 +6,30 @@
 
 A web-based data labeling interface for old visualization images ([live demo](https://oldvis.github.io/image-classification-labeler/)).
 
-The user can assign classification labels: `Vis` / `NotVis`, `Map` / `NotMap`, `Text` / `NotText`, `Table` / `NotTable`, plus `Unsure` / `Confident`.
+Assign classification labels: `Vis` / `NotVis`, `Map` / `NotMap`, `Text` / `NotText`, `Table` / `NotTable`, plus `Unsure` / `Confident`.
 
-## Development Instructions
+Annotations are kept in memory for the session.
+Use **download** to save `annotations.json`, and **upload** to restore work.
 
-- Clone the repository.
-- Run `pnpm install` to install dependencies (make sure you have [node.js](https://nodejs.org/) and [pnpm](https://pnpm.io/) installed before).
-- Run `pnpm run dev` to launch the dev server.
+## Development
 
-This repository is initialized with the [vitesse-lite template](https://github.com/antfu/vitesse-lite).
+```bash
+pnpm install
+pnpm run dev          # http://localhost:3333
+```
+
+| Script                | Purpose                                     |
+| --------------------- | ------------------------------------------- |
+| `pnpm run dev`        | Vite dev server                             |
+| `pnpm run build`      | Production build (GitHub Pages `base` path) |
+| `pnpm run test`       | Vitest single run                           |
+| `pnpm run test:watch` | Vitest watch mode                           |
+| `pnpm run test:e2e`   | Playwright (`--ui` for the UI)              |
+| `pnpm run lint`       | ESLint                                      |
+| `pnpm run typecheck`  | `vue-tsc`                                   |
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution notes.
+
+Dataset JSON lives under `src/assets/` (`visualizations.json`, `annotations.json`). The production deploy copies `dist/index.html` to `dist/404.html` for SPA deep links on GitHub Pages.
+
+This repository started from the [vitesse-lite template](https://github.com/antfu/vitesse-lite).

@@ -10,7 +10,7 @@ export const saveJsonFile = (
   saveAs(blob, filename)
 }
 
-export const parseJsonFile = (file: File): Promise<unknown> => (
+const parseJsonFile = (file: File): Promise<unknown> => (
   new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (event) => {

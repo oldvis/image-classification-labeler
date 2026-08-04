@@ -5,7 +5,7 @@ import { z } from 'zod'
 import annotationsUrl from '~/assets/annotations.json?url'
 import { useStore as useUserStore } from './user'
 
-export enum AnnotationType {
+enum AnnotationType {
   Classification = 'Classification',
 }
 
@@ -22,7 +22,7 @@ export enum Category {
   Confident = 'Confident',
 }
 
-export interface Annotation {
+interface Annotation {
   /** The type of annotation. */
   type: AnnotationType
   /** The uuid of the annotation. */
@@ -37,7 +37,7 @@ export interface Annotation {
   time: string
 }
 
-export const annotationSchema = z.object({
+const annotationSchema = z.object({
   type: z.enum(AnnotationType),
   uuid: z.string().min(1),
   subject: z.string().min(1),
@@ -46,11 +46,7 @@ export const annotationSchema = z.object({
   time: z.string().min(1),
 })
 
-export const annotationsSchema = z.array(annotationSchema)
-
-export const isAnnotationArray = (value: unknown): value is Annotation[] => (
-  annotationsSchema.safeParse(value).success
-)
+const annotationsSchema = z.array(annotationSchema)
 
 const classificationPairId = (value: Category): string | null => {
   if (value === Category.Vis || value === Category.NotVis) return 'vis'
@@ -130,7 +126,7 @@ export const loadAnnotations = async (): Promise<Annotation[]> => {
 }
 
 /** Whether two classification values are the same replace-pair (Vis/NotVis, …). */
-export const sameClassificationPair = (a: Category, b: Category): boolean => (
+const sameClassificationPair = (a: Category, b: Category): boolean => (
   ((a === Category.Vis || a === Category.NotVis)
     && (b === Category.Vis || b === Category.NotVis))
   || ((a === Category.Map || a === Category.NotMap)

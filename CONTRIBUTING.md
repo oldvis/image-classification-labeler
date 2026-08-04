@@ -2,19 +2,27 @@
 
 Thanks for being interested in contributing to this project!
 
-## Development
-
-### Setup
-
-Clone this repo to your local machine and install the dependencies.
+## Setup
 
 ```bash
 pnpm install
+pnpm run dev
 ```
 
-## Code Style
+## Checks before opening a PR
 
-Use `pnpm run lint --fix` to detect code style issues and fix the issues before committing.
+```bash
+pnpm run lint --fix
+pnpm run typecheck
+pnpm run test
+pnpm run test:e2e
+```
+
+CI runs the same suite (build, unit tests, Playwright, lint, typecheck) on Ubuntu and Windows.
+
+## Code style
+
+Use `pnpm run lint --fix` to fix style issues before committing.
 
 ## Thanks
 

@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   Category,
-  isAnnotationArray,
   loadAnnotations,
   parseUploadedAnnotations,
   useStore as useAnnotationStore,
@@ -131,7 +130,7 @@ describe('annotation store labeling contracts', () => {
     expect(store.annotations[0].user).toBeNull()
   })
 
-  it('parseUploadedAnnotations rejects unknown subjects and contradictory pairs', () => {
+  it('parseUploadedAnnotations rejects unknown subjects, contradictory pairs, and junk', () => {
     const known = new Set(['vis-a'])
     expect(parseUploadedAnnotations(
       [makeAnnotation('missing', Category.Vis)],
@@ -150,26 +149,14 @@ describe('annotation store labeling contracts', () => {
       [makeAnnotation('vis-a', Category.Vis)],
       known,
     )).toMatchObject({ ok: true })
-  })
 
-  it('isAnnotationArray accepts well-formed rows and rejects junk', () => {
-    expect(isAnnotationArray([{
-      type: 'Classification',
-      uuid: 'a',
-      subject: 'vis-a',
-      user: null,
-      value: 'Vis',
-      time: '2020-01-01T00:00:00.000Z',
-    }])).toBe(true)
-    expect(isAnnotationArray({ nope: true })).toBe(false)
-    expect(isAnnotationArray([{ uuid: 1 }])).toBe(false)
-    expect(isAnnotationArray([{
-      type: 'Classification',
-      uuid: 'a',
-      subject: 'vis-a',
-      user: null,
-      value: 'NotARealCategory',
-      time: '2020-01-01T00:00:00.000Z',
-    }])).toBe(false)
+    expect(parseUploadedAnnotations({ nope: true }, known)).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/annotations array/i),
+    })
+    expect(parseUploadedAnnotations([{ uuid: 1 }], known)).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/annotations array/i),
+    })
   })
 })

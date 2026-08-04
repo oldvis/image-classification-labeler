@@ -1,10 +1,15 @@
 <template>
-  <main
+  <div
     class="h-full w-full"
     flex="~ col"
   >
     <TheNavBar />
-    <RouterView />
+    <main
+      class="grow min-h-0"
+      flex="~ col"
+    >
+      <RouterView />
+    </main>
     <VMessages />
-  </main>
+  </div>
 </template>

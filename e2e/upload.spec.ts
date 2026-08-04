@@ -44,24 +44,26 @@ test.describe('annotation upload schema checks', () => {
   test('rejects invalid schema without replacing existing annotations', async ({ page }) => {
     await openAnnotateApp(page)
 
+    const inPageLabeled = page.locator('[view-header]').filter({ hasText: 'in page labeled' })
     await page.getByRole('button', { name: 'Vis', exact: true }).click()
-    await expect(page.getByText('1/1')).toBeVisible()
+    await expect(inPageLabeled).toContainText('1/1')
 
     await uploadFixture(page, 'annotations-invalid-schema.json')
 
     await expect(page.getByText('Upload failed: file is not an annotations array')).toBeVisible()
-    await expect(page.getByText('1/1')).toBeVisible()
+    await expect(inPageLabeled).toContainText('1/1')
   })
 
   test('rejects invalid JSON without replacing existing annotations', async ({ page }) => {
     await openAnnotateApp(page)
 
+    const inPageLabeled = page.locator('[view-header]').filter({ hasText: 'in page labeled' })
     await page.getByRole('button', { name: 'Vis', exact: true }).click()
-    await expect(page.getByText('1/1')).toBeVisible()
+    await expect(inPageLabeled).toContainText('1/1')
 
     await uploadFixture(page, 'annotations-invalid.json')
 
     await expect(page.getByText('Upload failed: invalid JSON')).toBeVisible()
-    await expect(page.getByText('1/1')).toBeVisible()
+    await expect(inPageLabeled).toContainText('1/1')
   })
 })

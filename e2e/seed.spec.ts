@@ -21,7 +21,9 @@ test.describe('annotation seed loading', () => {
 
     await expect(page.getByText('Entries', { exact: true })).toBeVisible({ timeout: 60_000 })
     // Seed labeled vis-a → first (only) shown entry counts as labeled.
-    await expect(page.getByText('1/1')).toBeVisible()
+    await expect(
+      page.locator('[view-header]').filter({ hasText: 'in page labeled' }),
+    ).toContainText('1/1')
     await expect(page.getByRole('button', { name: 'Vis', exact: true })).toHaveAttribute(
       'ring',
       '2 black dark:white',

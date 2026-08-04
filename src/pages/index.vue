@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useTitle } from '@vueuse/core'
 import { useDatasetGate } from '~/composables/useDatasetGate'
 import { useSignInNotice } from '~/composables/useSignInNotice'
 
+useTitle('Classify · OldVisOnline')
 useSignInNotice()
 
 const { showLoading, error, loadDatasets } = useDatasetGate()

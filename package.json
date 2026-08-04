@@ -8,9 +8,9 @@
     "lint": "eslint .",
     "typecheck": "vue-tsc --noEmit",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
     "up": "taze major -I"
   },
   "dependencies": {
@@ -39,6 +39,7 @@
     "@unocss/eslint-config": "^66.7.5",
     "@unocss/reset": "^66.7.5",
     "@vitejs/plugin-vue": "^6.0.8",
+    "@vitest/coverage-v8": "^4.1.10",
     "@vue-macros/volar": "^3.1.4",
     "@vue/test-utils": "^2.4.11",
     "eslint": "^10.8.0",

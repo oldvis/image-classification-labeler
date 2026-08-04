@@ -68,6 +68,16 @@ jobs:
       - name: E2E
         run: pnpm run test:e2e
 
+      - name: Upload Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-${{ matrix.os }}-${{ matrix.node_version }}
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+
       - name: Lint
         env:
           NODE_OPTIONS: --max_old_space_size=4096
