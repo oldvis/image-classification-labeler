@@ -5,10 +5,9 @@ import { useStore } from '~/stores/selector'
 const input = ref('')
 const target = ref()
 const { focused } = useFocus(target)
-const { addSearchSelector } = useStore()
+const store = useStore()
 const onSearch = () => {
-  addSearchSelector(input.value)
-  input.value = ''
+  if (store.addSearchSelector(input.value)) input.value = ''
 }
 onKeyStroke('Enter', () => {
   if (!focused.value) return

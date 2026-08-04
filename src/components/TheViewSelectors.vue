@@ -26,7 +26,7 @@ const {
     <div class="flex overflow-auto">
       <template
         v-for="(selector, i) in selectors"
-        :key="i"
+        :key="selector.uuid"
       >
         <div v-if="i !== 0" class="my-auto">
           ∩

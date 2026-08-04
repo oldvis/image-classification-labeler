@@ -104,13 +104,24 @@ export const useStore = defineStore('selectors', {
     toggleUnsureSelector(): void {
       this.toggleSelector(buildUnsureSelector())
     },
-    /** Add/Remove a selector checking datum[field] in closed range [left, right]. */
-    addSearchSelector(pattern: string): void {
+    /**
+     * Add a Fuse search selector.
+     * @returns `true` when a selector was added; `false` for empty or duplicate patterns.
+     */
+    addSearchSelector(pattern: string): boolean {
+      const trimmed = pattern.trim()
+      if (trimmed === '') return false
       const options = {
         threshold: 0,
         keys: ['uuid', 'authors', 'displayName', 'publishDate', 'tags'],
       }
-      this.selectors.push(buildSearchSelector(pattern, options))
+      const duplicate = this.selectors.some((d) => (
+        d.type === SelectorType.Fuse
+        && isEqual(d.query, { pattern: trimmed, options })
+      ))
+      if (duplicate) return false
+      this.selectors.push(buildSearchSelector(trimmed, options))
+      return true
     },
     /**
      * Add/Remove a selector if selector(s)

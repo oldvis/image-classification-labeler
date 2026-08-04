@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import TheViewLabel from '~/components/TheViewLabel.vue'
 import { Category, useStore as useAnnotationStore } from '~/stores/annotation'
+import { useStore as useMessageStore } from '~/stores/message'
 import { useStore as useSelectorStore } from '~/stores/selector'
 import { createTestPinia, resetInterfaceStores } from '../helpers/pinia'
 
@@ -103,6 +104,19 @@ describe('theViewLabel interface', () => {
     await goto.trigger('click')
 
     expect(wrapper.text()).toContain('0/1')
+  })
+
+  it('goto first unlabeled reports when none remain', async () => {
+    const wrapper = mountLabelView()
+    const store = useAnnotationStore()
+    for (const uuid of ['vis-a', 'vis-b', 'vis-c', 'vis-d']) {
+      store.addClassification(uuid, Category.Vis)
+    }
+
+    const goto = wrapper.find('button[title="goto first unlabeled"]')
+    await goto.trigger('click')
+
+    expect(useMessageStore().messages.some((d) => /no unlabeled/i.test(d.content))).toBe(true)
   })
 
   it('pressing d then a navigates forward and back when visible', async () => {

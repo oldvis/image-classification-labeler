@@ -1,6 +1,6 @@
 import { saveAs } from 'file-saver'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { parseJsonFile, saveJsonFile } from '~/plugins/file'
+import { parseJsonFile, saveJsonFile, uploadJsonFile } from '~/plugins/file'
 
 vi.mock('file-saver', () => ({
   saveAs: vi.fn(),
@@ -34,5 +34,34 @@ describe('file plugin', () => {
   it('parseJsonFile rejects invalid JSON', async () => {
     const file = new File(['{'], 'bad.json', { type: 'application/json' })
     await expect(parseJsonFile(file)).rejects.toThrow()
+  })
+
+  it('uploadJsonFile sets accept and resolves null on cancel', async () => {
+    const click = vi.fn()
+    const input = {
+      type: '',
+      accept: '',
+      multiple: true,
+      webkitdirectory: false,
+      value: '',
+      files: null as FileList | null,
+      click,
+      onchange: null as ((e: Event) => void) | null,
+      oncancel: null as (() => void) | null,
+    }
+    const createElement = vi.spyOn(document, 'createElement').mockReturnValue(
+      input as unknown as HTMLInputElement,
+    )
+
+    const pending = uploadJsonFile()
+    expect(input.type).toBe('file')
+    expect(input.accept).toBe('application/json,.json')
+    expect(input.multiple).toBe(false)
+    expect(click).toHaveBeenCalledTimes(1)
+
+    input.oncancel?.()
+    await expect(pending).resolves.toBeNull()
+
+    createElement.mockRestore()
   })
 })

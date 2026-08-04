@@ -2,6 +2,7 @@
 import { isFocusedElementEditable, onKeyStroke, useElementVisibility } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { Category, useStore as useAnnotationStore } from '~/stores/annotation'
+import { useStore as useMessageStore } from '~/stores/message'
 import { useStore as useSelectorStore } from '~/stores/selector'
 import { useStore as useVisStore } from '~/stores/visualization'
 
@@ -60,13 +61,17 @@ const nInPageLabeled = computed(() => (
   shown.value.filter((d) => isLabeled(d.uuid)).length
 ))
 
+const { addSuccessMessage } = useMessageStore()
+
 const gotoUnlabeled = (): void => {
   const index = matched.value.findIndex((d) => !isLabeled(d.uuid))
-  if (index !== -1) {
-    startIndex.value = index
-    if (content.value !== null) {
-      content.value.scrollTop = 0
-    }
+  if (index === -1) {
+    addSuccessMessage('No unlabeled entries left')
+    return
+  }
+  startIndex.value = index
+  if (content.value !== null) {
+    content.value.scrollTop = 0
   }
 }
 

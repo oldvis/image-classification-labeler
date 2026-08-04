@@ -27,4 +27,26 @@ describe('theWidgetSearch', () => {
     expect((store.selectors[0].query as { pattern: string }).pattern).toBe('Alpha Chart')
     expect((input.element as HTMLInputElement).value).toBe('')
   })
+
+  it('keeps the input when the pattern is empty or already present', async () => {
+    const pinia = createTestPinia()
+    resetInterfaceStores()
+    const store = useSelectorStore()
+    store.addSearchSelector('Alpha Chart')
+
+    const wrapper = mount(TheWidgetSearch, {
+      global: { plugins: [pinia] },
+    })
+
+    const input = wrapper.get('input')
+    await input.setValue('   ')
+    await wrapper.get('button').trigger('click')
+    expect((input.element as HTMLInputElement).value).toBe('   ')
+    expect(store.selectors).toHaveLength(1)
+
+    await input.setValue('Alpha Chart')
+    await wrapper.get('button').trigger('click')
+    expect((input.element as HTMLInputElement).value).toBe('Alpha Chart')
+    expect(store.selectors).toHaveLength(1)
+  })
 })

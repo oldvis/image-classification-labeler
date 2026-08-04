@@ -19,6 +19,17 @@ describe('selector store filter contracts', () => {
     expect(store.selectors[0].type).toBe(SelectorType.Fuse)
   })
 
+  it('addSearchSelector ignores empty and duplicate patterns', () => {
+    const store = useSelectorStore()
+    expect(store.addSearchSelector('   ')).toBe(false)
+    expect(store.selectors).toHaveLength(0)
+
+    expect(store.addSearchSelector('vis-b')).toBe(true)
+    expect(store.addSearchSelector('vis-b')).toBe(false)
+    expect(store.addSearchSelector('  vis-b  ')).toBe(false)
+    expect(store.selectors).toHaveLength(1)
+  })
+
   it('toggleUnlabeledSelector filters to unlabeled only', () => {
     const annotations = useAnnotationStore()
     annotations.addClassification('vis-a', Category.Vis)

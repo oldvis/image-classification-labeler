@@ -67,12 +67,14 @@ const getPublishYear = (
   return publishDate.year
 }
 
+const languageDisplayNames = new Intl.DisplayNames(['en'], { type: 'language' })
+
 const getLanguageFullNames = (languages: string[]): string[] => (
   languages?.map((lang: string) => {
     if (lang in iso6393ToName) {
       return iso6393ToName[lang]
     }
-    return (new Intl.DisplayNames(['en'], { type: 'language' })).of(lang)
+    return languageDisplayNames.of(lang)
   }).filter((d) => d !== undefined) as string[] ?? []
 )
 
