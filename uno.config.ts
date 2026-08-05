@@ -6,7 +6,8 @@ import {
   presetWind4,
 } from 'unocss'
 
-// Node 25+ rejects bare JSON ESM imports used by UnoCSS's auto icon loader.
+// Node 25+ rejects bare JSON ESM imports used by UnoCSS's auto icon loader
+// (`ERR_IMPORT_ATTRIBUTE_MISSING`). Load collections via createRequire instead.
 const require = createRequire(import.meta.url)
 
 /**
@@ -28,14 +29,16 @@ export default defineConfig({
     ['btn-neutral', `${chromeBtn} bg-neutral-600 text-white border-neutral-700 hover:bg-neutral-700 disabled:opacity-50 disabled:border-transparent`],
     ['btn-secondary', `${chromeBtn} border-gray-300 bg-white text-gray-800 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700`],
     ['btn-ghost', `${chromeBtn} border-transparent text-gray-700 hover:bg-gray-100 disabled:opacity-50 dark:text-gray-200 dark:hover:bg-gray-800`],
-    ['btn-label', `${labelBtn} bg-teal-600 text-white border-teal-700 hover:bg-teal-700`],
-    ['btn-label-warn', `${labelBtn} bg-red-600 text-white border-red-800 hover:bg-red-700`],
-    ['btn-label-neutral', `${labelBtn} bg-neutral-600 text-white border-neutral-700 hover:bg-neutral-700`],
+    // Soft polarity fills (pill-on ladder) — dense grid next to images; not solid paint chips.
+    ['btn-label', `${labelBtn} border-teal-300 bg-teal-50 text-teal-800 hover:bg-teal-100 dark:border-teal-500 dark:bg-teal-900/40 dark:text-teal-200 dark:hover:bg-teal-900/60`],
+    ['btn-label-warn', `${labelBtn} border-red-300 bg-red-50 text-red-800 hover:bg-red-100 dark:border-red-500 dark:bg-red-900/40 dark:text-red-200 dark:hover:bg-red-900/60`],
+    ['btn-label-neutral', `${labelBtn} border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700`],
+    ['btn-label-confident', `${labelBtn} border-sky-300 bg-sky-50 text-sky-800 hover:bg-sky-100 dark:border-sky-500 dark:bg-sky-900/40 dark:text-sky-200 dark:hover:bg-sky-900/60`],
     ['icon-btn', 'base-btn inline-flex items-center justify-center p-1 text-sm select-none opacity-75 transition hover:opacity-100 hover:text-teal-600'],
     // Subtle key hint; inherits button text color via border-current.
     ['kbd', 'ml-0.5 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded border border-current px-0.5 text-[10px] leading-none font-mono opacity-55'],
     ['pill', `base-btn inline-flex items-center justify-center ${chromeControl} px-2 py-0 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700`],
-    ['pill-on', 'pill border-teal-600 bg-teal-50 text-teal-800 font-semibold dark:border-teal-500 dark:bg-teal-900/40 dark:text-teal-200'],
+    ['pill-on', 'pill border-teal-600 bg-teal-50 text-teal-800 dark:border-teal-500 dark:bg-teal-900/40 dark:text-teal-200'],
     ['chip', `inline-flex ${chromeControl} max-h-6 items-center gap-1 px-2 rounded border border-gray-300 bg-white text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200`],
     ['strip-label', 'text-sm text-gray-500 font-semibold leading-none dark:text-gray-400'],
     ['strip-meta', 'text-sm text-gray-600 leading-none dark:text-gray-300'],

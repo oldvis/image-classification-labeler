@@ -111,6 +111,7 @@ const onSubmit = (): void => {
           <button
             type="button"
             btn-secondary
+            title="Cancel without saving"
             @click="dialog = false"
           >
             Cancel
@@ -118,6 +119,7 @@ const onSubmit = (): void => {
           <button
             type="submit"
             btn
+            title="Save annotator name"
           >
             Save
           </button>

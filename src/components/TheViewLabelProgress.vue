@@ -75,7 +75,7 @@ const upload = async () => {
       <span
         strip-sep
         aria-hidden="true"
-      >·</span>
+      >|</span>
       <span>
         Unsure
         <span strip-meta-em>{{ nUnsure }}</span>
@@ -91,6 +91,7 @@ const upload = async () => {
       <button
         type="button"
         class="btn-ghost ml-1"
+        :title="showDetails ? 'Hide category pair counts' : 'Show category pair counts'"
         @click="showDetails = !showDetails"
       >
         {{ showDetails ? 'Hide Details' : 'Details' }}

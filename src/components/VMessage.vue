@@ -60,6 +60,7 @@ watch(show, (d) => {
       {{ message.content }}
     </div>
     <button
+      type="button"
       icon-btn
       class="ml-auto"
       title="Close"

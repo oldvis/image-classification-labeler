@@ -76,9 +76,10 @@ Brand format in the nav: **`OldVis · {Task}`** where Task is one of: Classify, 
 
 ## Colors
 
-- **Primary (Teal `#0d9488`):** Affirmative commits — classification labels (`btn-label`), dialog **Save**, active filter state (`pill-on`).
-- **Danger (Red `#dc2626`):** Negative / “Not X” label actions and destructive emphasis.
-- **Neutral action (`#525252`):** Unsure and similar non-binary states.
+- **Primary (Teal `#0d9488`):** Affirmative chrome commits — dialog **Save**, active filter state (`pill-on`). Classification yes-tones use the same hue as a soft tint (`btn-label`), not a solid fill. Segment Vis tag swatches use the solid hue.
+- **Danger (Red `#dc2626`):** Destructive chrome emphasis. Classification “Not X” uses a soft red tint (`btn-label-warn`). Segment **Not Vis** swatches use the solid hue.
+- **Neutral / Confident:** Unsure = soft gray (`btn-label-neutral` / solid `#6b7280` swatch). Confident = soft sky (`btn-label-confident` / solid `#0284c7` swatch). Meta tags, not a third solid primary.
+- **Mark categories (Segment):** Other Draw classes (Line, Arc, …) keep a categorical palette (`schemeCategory10`); do not reuse polarity hues for those.
 - **Secondary (outline white):** Chrome strip actions (Previous/Next, Download/Upload, Set annotator name, dialog Cancel) and filter toggles off-state.
 - **Ghost:** Low-emphasis text actions (Copy, metadata links, Clear, Details).
 - **Surfaces:** White / `#121212` dark page; strip bands gray-50 / gray-900; borders gray-200 / gray-700. Hierarchy via borders and density, not button shadows.
@@ -103,15 +104,19 @@ Keep the type ladder short — prefer weight over size/family switches:
 Shell grammar for labeling apps:
 
 1. **Nav** — favicon, `OldVis · {Task}`, identity control, theme, GitHub (plus app-specific nav widgets).
-2. **Top strip** — Selectors or Tools only (dense; not a second dumping ground for Progress).
-3. **Workbench** — task surface (image + labels, canvas + spans, facets + entries, tree + entries).
+2. **Top strip** — Selectors (Classify) or Draw | Tags (Segment) only (dense; not a second dumping ground for Progress).
+3. **Workbench** — task surface (image + labels, canvas + objects, facets + entries, tree + entries).
 4. **Bottom strip** — Progress counts, Details (where applicable), Download / Upload.
 
-Classify entry layout: **image left (~3/5), metadata + label controls right (~2/5)**. Do not move classification buttons under the image.
+Classify entry layout: **image left (~3/5), metadata + label controls right (~2/5)** inside one **Entries** workbench. Segment: **Entries** (~7/10 canvas) | **Objects** (~3/10 instance list). Do not move classification buttons under the image. Chrome label for the item queue is always **Entries** (not Subject / data object). **Entries** headers use the same images icon in every app.
+
+**Objects cards (Segment):** Inspector hierarchy — **mark class**(es) as `■ Class · ■ Class` (Draw palette; `+N` only after 3 unique types) when marks exist; muted `Shape {geometry}` line for the region shape (Rect/Point/Polygon); `Last modified by {name}`; Details / Repeat / Marks on the full card with compact `h-6` section headers (small chevrons / +); mark editors as flat field rows. Do not collapse unselected objects to a single row.
+
+**Progress stats:** Coverage group first (`Labeled n / total · Unlabeled n` plus `Skipped` when the app has it), then `|`, then confidence tags (`Unsure · Confident`). Middots stay inside a group; `|` separates axes. Example (with Skipped): `Labeled 13 / 485 · Unlabeled 472 · Skipped 0 | Unsure 2 · Confident 5`. Details (Classify) sits after the tag group without a middot. In Segment, Unsure/Confident count multilabel image tags that include those values (not a partition of total).
 
 Spacing is tight (`xs`/`sm`); prefer one workbench plane over nested heavy cards. Panels may use a light border + small radius; avoid multi-layer shadows.
 
-**Command bars:** Nav, Selectors, Entries header, image footer, and Progress share one geometry (`min-h-10`, `py-1.5`). Chrome controls inside them share `h-6` so vertical padding matches (never flush). Do not mix strip paddings.
+**Command bars:** Nav, Selectors, Entries header, image footer, and Progress share one geometry (`min-h-10`, `py-1.5`). Chrome controls inside them share `h-6` so vertical padding matches (never flush). Do not mix strip paddings. **Adjacent chrome controls in a cluster** (pills, Previous/Next, Download/Upload) use `gap-1`; reserve strip `gap-x-2` for spacing between strip regions (label · stats · actions), not between sibling buttons.
 
 **Information rule:** Reorganization is allowed. Removing filters, counts, actions, or metadata affordances is not. If something existed in the previous UI, it must remain reachable (possibly denser or collapsed behind Details).
 
@@ -121,7 +126,7 @@ Flat chrome controls (buttons/pills/chips: border only, no drop shadow). Separat
 
 ## Shapes
 
-Small radii (`~6px`) on buttons, inputs, and panels. Filter toggles (`pill` / `pill-on`) always show a border so they read as clickable; active state uses teal border + tint. Active filter chips use `chip`. Classification uses `btn-label*` (`text-base`, `min-h-9`). Chrome controls share one geometry (`h-6`, border, no shadow).
+Small radii (`~6px`) on buttons, inputs, and panels. Filter toggles (`pill` / `pill-on`) always show a border so they read as clickable; active state uses teal border + tint **without** changing font weight (bold shifts button width). Active filter chips use `chip`. Classification uses soft polarity fills (`btn-label*`: tinted surface + colored text/border, `text-base`, `min-h-9`) so the dense label grid stays calm next to images. Selected state is a ring, not a heavier fill. Chrome controls share one geometry (`h-6`, border, no shadow).
 
 ## Components
 
@@ -132,13 +137,15 @@ Small radii (`~6px`) on buttons, inputs, and panels. Filter toggles (`pill` / `p
 | `btn-secondary`                                                     | Chrome / Cancel — outline white, `h-6`                                  |
 | `btn`                                                               | Dialog Save / Retry — filled teal, same `h-6`                           |
 | `btn-ghost`                                                         | Low-emphasis utilities (same `h-6`)                                     |
-| `btn-label*`                                                        | Classification labels only (`text-base`)                                |
+| `btn-label*`                                                        | Classification labels only — soft tints (`text-base`)                   |
 | `pill` / `pill-on` / `chip`                                         | Filter toggles and active filter chips (`h-6`)                          |
 | `strip-label` / `strip-meta` / `strip-meta-em` / `strip-sep`        | Strip titles, muted copy, emphasized counts, middot (`·`) between stats |
 | `input-area`                                                        | Compact strip search input (`h-6`)                                      |
 | `dialog-panel` / `dialog-body` / `dialog-field` / `dialog-backdrop` | Modal chrome (see Dialogs)                                              |
 | `icon-btn`                                                          | Theme, GitHub, close                                                    |
 | `kbd`                                                               | Subtle key hint on hot-path buttons (inherits text color, low opacity)  |
+| `tool-btn` / `tool-btn-active`                                      | Segment draw tools — same `h-6` as pills (Segment `uno.config.ts` only) |
+| `menu-trigger` / `menu-panel` / `menu-item` / `menu-item-on`        | Segment compact selects (Segment only)                                  |
 
 Focus-visible: teal ring. Disabled: reduced opacity, no pointer events.
 
@@ -154,7 +161,7 @@ Hints use the `kbd` badge on those buttons. Ignore shortcuts when focus is in an
 
 ### Status strips
 
-Dense horizontal rows (`status-strip` / `view-header`). Top = Selectors/Tools. Bottom = Progress + I/O. Image-footer nav stays under the image only; side-pane utilities (View Metadata, Copy, URL) stay in-pane without forming a half-width bar across the workbench. Inline strip **stats** use middot separators (`strip-sep`: `1/1 labeled on page · 89 matched · 13511 entries`). Do not put middots around action controls (e.g. Details) — those sit after the stats with normal spacing.
+Dense horizontal rows (`status-strip` / `view-header`). Top = Selectors/Tools. Bottom = Progress + I/O. Image-footer nav stays under the image only; side-pane utilities (View Metadata, Copy, URL) stay in-pane without forming a half-width bar across the workbench. Inline strip **stats** use middot separators within a group (`strip-sep`: `1/1 labeled on page · 89 matched · 13511 entries`). Progress uses `|` between coverage and confidence-tag groups. Do not put middots around action controls (e.g. Details) — those sit after the stats with normal spacing.
 
 ### Dialogs
 
@@ -181,7 +188,8 @@ Stay app-local: classification pairs, segmentation tool buttons, gallery facets,
 - Do use `OldVis · {Task}` in the nav; align document titles (e.g. `Classify · OldVis`).
 - Don't build a shared Vue button/card library until multiple apps truly duplicate chrome markup.
 - Don't add decorative gradients, hero imagery, or marketing card grids to labeling surfaces.
-- Don't block labeling behind identity; keep Set Name in the nav. Use a one-shot info snackbar for the unsigned nudge — not a permanent layout bar.
+- Don't block labeling behind identity; keep Set Name in the nav. Use a one-shot info snackbar for the unsigned nudge — not a permanent layout bar. The nudge stays until the user closes it or sets a name (same copy and chrome in every app: “Set a Name in the header…”).
 - Don't invent parallel color shortcuts per repo; match this token ladder when editing `uno.config.ts`.
+- Don't require every app to define every shortcut — Classify keeps `btn-label*`; Segment keeps `tool-btn` / `menu-*`; shared chrome shortcuts must match.
 - Don't move Classify labels under the image.
 - Don't style dialogs as airy marketing cards; reuse strip header/footer + `dialog-*` shortcuts.

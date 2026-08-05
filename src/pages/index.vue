@@ -36,6 +36,7 @@ void loadDatasets()
     <button
       type="button"
       class="btn"
+      title="Retry loading datasets"
       @click="loadDatasets"
     >
       Retry

@@ -69,12 +69,29 @@ describe('vDataEntry', () => {
     const wrapper = mountEntry(makeVisualization({
       uuid: 'v1',
       downloadUrl: 'https://example.com/img.png',
+      viewUrl: 'https://example.com/view',
     }))
 
     expect(wrapper.find('img').exists()).toBe(true)
     await wrapper.find('img').trigger('error')
     expect(wrapper.text()).toContain('Image failed to load')
     expect(wrapper.find('img').exists()).toBe(false)
+    const url = wrapper.find('a[href="https://example.com/view"]')
+    expect(url.exists()).toBe(true)
+    expect(url.text()).toBe('URL')
+    expect(url.attributes('target')).toBe('_blank')
+    expect(url.attributes('rel')).toBe('noopener noreferrer')
+  })
+
+  it('falls back to downloadUrl in the error link when viewUrl is missing', async () => {
+    const wrapper = mountEntry(makeVisualization({
+      uuid: 'v1',
+      downloadUrl: 'https://example.com/img.png',
+      viewUrl: '',
+    }))
+
+    await wrapper.find('img').trigger('error')
+    expect(wrapper.find('a[href="https://example.com/img.png"]').text()).toBe('URL')
   })
 
   it('disables the url link when viewUrl is not http(s)', () => {

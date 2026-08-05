@@ -2,21 +2,26 @@ import { storeToRefs } from 'pinia'
 import { useStore as useMessageStore } from '~/stores/message'
 import { useStore as useUserStore } from '~/stores/user'
 
-const NAME_NOTICE = 'Set a Name in the header so new annotations include your user id.'
+export const NAME_NOTICE = 'Set a Name in the header so new annotations include your user id.'
 
 /**
  * Soft identity nudge via snackbar (not a permanent layout bar).
- * Call once when the annotate surface is ready.
+ * Call once when the annotate surface is ready. Stays until dismissed or signed in.
  */
 export const useSignInNotice = () => {
+  const messageStore = useMessageStore()
   const { isSignedIn } = storeToRefs(useUserStore())
-  const { addInfoMessage } = useMessageStore()
 
   const notifyIfUnsigned = (): void => {
+    messageStore.removeByContent(NAME_NOTICE)
     if (!isSignedIn.value) {
-      addInfoMessage(NAME_NOTICE)
+      messageStore.addInfoMessage(NAME_NOTICE, Number.POSITIVE_INFINITY)
     }
   }
+
+  watch(isSignedIn, (signedIn) => {
+    if (signedIn) messageStore.removeByContent(NAME_NOTICE)
+  })
 
   return { notifyIfUnsigned }
 }

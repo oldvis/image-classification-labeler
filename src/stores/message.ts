@@ -42,6 +42,9 @@ export const useStore = defineStore('message', {
       if (index === -1) return
       this.messages.splice(index, 1)
     },
+    removeByContent(content: string): void {
+      this.messages = this.messages.filter((d) => d.content !== content)
+    },
   },
 })
 

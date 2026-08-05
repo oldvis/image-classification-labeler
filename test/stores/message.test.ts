@@ -24,4 +24,12 @@ describe('message store', () => {
     expect(store.messages[0]?.type).toBe(MessageType.Info)
     expect(store.messages[0]?.content).toBe('nudge')
   })
+
+  it('removeByContent removes matching messages', () => {
+    const store = useMessageStore()
+    store.addInfoMessage('keep-looking', Number.POSITIVE_INFINITY)
+    store.addSuccessMessage('other')
+    store.removeByContent('keep-looking')
+    expect(store.messages.map((d) => d.content)).toEqual(['other'])
+  })
 })

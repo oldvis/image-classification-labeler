@@ -46,7 +46,7 @@ const categoryByKey = Object.fromEntries(
 const labelButtonClass = (tone: LabelTone): string => {
   if (tone === 'yes') return 'btn-label'
   if (tone === 'no') return 'btn-label-warn'
-  if (tone === 'confident') return 'btn-label-neutral'
+  if (tone === 'confident') return 'btn-label-confident'
   return 'btn-label-neutral'
 }
 
@@ -177,7 +177,7 @@ const positionLabel = computed(() => {
       data-testid="entries-stats"
       view-header
     >
-      <div class="i-fa6-solid:table text-gray-500 shrink-0" />
+      <div class="i-fa6-solid:images text-gray-500 shrink-0" />
       <div strip-label>
         Entries
       </div>
@@ -228,10 +228,8 @@ const positionLabel = computed(() => {
               v-for="control in row"
               :key="control.category"
               type="button"
-              class="flex flex-1 gap-1.5 items-center justify-center" :class="[
-                labelButtonClass(control.tone),
-                control.tone === 'confident' ? 'bg-blue-500 hover:bg-blue-600 border-blue-700' : '',
-              ]"
+              class="flex flex-1 gap-1.5 items-center justify-center"
+              :class="labelButtonClass(control.tone)"
               :title="`${control.title} (${control.key})`"
               :ring="isClassified(d.uuid, control.category) ? '2 black dark:white' : ''"
               @click="clickCategory(d.uuid, control.category)"
@@ -257,41 +255,47 @@ const positionLabel = computed(() => {
           </div>
         </div>
         <template #image-footer>
-          <div class="flex flex-wrap gap-1.5 items-center">
-            <button
-              type="button"
-              btn-secondary
-              :title="`Show previous ${shownNumber} entries (A)`"
-              :disabled="startIndex === 0"
-              @click="showNext(-shownNumber)"
-            >
-              Previous
-              <span
-                kbd
-                aria-hidden="true"
-              >A</span>
-            </button>
-            <button
-              type="button"
-              btn-secondary
-              :title="`Show next ${shownNumber} entries (D)`"
-              :disabled="startIndex + shownNumber >= matched.length"
-              @click="showNext(shownNumber)"
-            >
-              Next
-              <span
-                kbd
-                aria-hidden="true"
-              >D</span>
-            </button>
-            <button
-              type="button"
-              btn-secondary
-              title="Go to First Unlabeled"
-              @click="gotoUnlabeled"
-            >
-              Go to First Unlabeled
-            </button>
+          <!--
+            `contents` so the cluster + position are strip flex children (ml-auto works).
+            Buttons stay in an inner gap-1 group — same density as pills / Download·Upload.
+          -->
+          <div class="contents">
+            <div class="flex flex-wrap gap-1 items-center">
+              <button
+                type="button"
+                btn-secondary
+                :title="`Show previous ${shownNumber} entries (A)`"
+                :disabled="startIndex === 0"
+                @click="showNext(-shownNumber)"
+              >
+                Previous
+                <span
+                  kbd
+                  aria-hidden="true"
+                >A</span>
+              </button>
+              <button
+                type="button"
+                btn-secondary
+                :title="`Show next ${shownNumber} entries (D)`"
+                :disabled="startIndex + shownNumber >= matched.length"
+                @click="showNext(shownNumber)"
+              >
+                Next
+                <span
+                  kbd
+                  aria-hidden="true"
+                >D</span>
+              </button>
+              <button
+                type="button"
+                btn-secondary
+                title="Go to First Unlabeled"
+                @click="gotoUnlabeled"
+              >
+                Go to First Unlabeled
+              </button>
+            </div>
             <span class="strip-meta ml-auto">
               {{ positionLabel }}
             </span>

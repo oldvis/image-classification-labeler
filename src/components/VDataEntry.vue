@@ -78,6 +78,16 @@ const onClickCopy = async () => {
 }
 
 const viewHref = computed(() => safeHttpUrl(datum.value.viewUrl))
+/** Prefer catalog view URL; fall back to download URL when linking "URL" in image errors. */
+const urlActionHref = computed(() => (
+  viewHref.value ?? safeHttpUrl(datum.value.downloadUrl)
+))
+const imageErrorLead = computed((): string | null => {
+  if (downloadUrlKind.value === 'https' && !imageFailed.value) return null
+  if (imageFailed.value) return 'Image failed to load.'
+  if (downloadUrlKind.value === 'http') return 'The image is served over HTTP (not HTTPS).'
+  return 'The image URL is missing or invalid.'
+})
 const googleHref = computed(() => (
   `https://www.google.com/search?q=${encodeURIComponent(datum.value.displayName ?? '')}`
 ))
@@ -118,25 +128,22 @@ const googleHref = computed(() => (
           @error="onImageError"
         >
         <span
-          v-else-if="imageFailed"
+          v-else-if="imageErrorLead !== null"
           class="text-gray-600 p-3 text-center dark:text-gray-300"
         >
-          Image failed to load.
-          Please use URL to view it.
-        </span>
-        <span
-          v-else-if="downloadUrlKind === 'http'"
-          class="text-gray-600 p-3 text-center dark:text-gray-300"
-        >
-          The image is served over HTTP (not HTTPS).
-          Please use URL to view it.
-        </span>
-        <span
-          v-else
-          class="text-gray-600 p-3 text-center dark:text-gray-300"
-        >
-          The image URL is missing or invalid.
-          Please use URL to view it.
+          {{ imageErrorLead }}
+          Please use
+          <a
+            v-if="urlActionHref !== null"
+            class="text-teal-700 underline underline-offset-2 dark:text-teal-300 hover:text-teal-800 dark:hover:text-teal-200"
+            :href="urlActionHref"
+            target="_blank"
+            rel="noopener noreferrer"
+          >URL</a>
+          <template v-else>
+            URL
+          </template>
+          to view it.
         </span>
       </div>
       <div
