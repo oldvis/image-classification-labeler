@@ -33,7 +33,7 @@ const hasSelectorType = (type: SelectorType): boolean => (
     >
       <template v-if="selectors.length === 0">
         <div class="strip-meta px-1">
-          No Filters
+          No filters
         </div>
       </template>
       <template

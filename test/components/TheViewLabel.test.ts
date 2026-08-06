@@ -100,7 +100,7 @@ describe('theViewLabel interface', () => {
     const store = useAnnotationStore()
     store.addClassification('vis-a', Category.Vis)
 
-    const goto = wrapper.find('button[title="Go to First Unlabeled"]')
+    const goto = wrapper.find('button[title="Go to first unlabeled"]')
     await goto.trigger('click')
 
     expect(wrapper.text()).toContain('0/1')
@@ -113,7 +113,7 @@ describe('theViewLabel interface', () => {
       store.addClassification(uuid, Category.Vis)
     }
 
-    const goto = wrapper.find('button[title="Go to First Unlabeled"]')
+    const goto = wrapper.find('button[title="Go to first unlabeled"]')
     await goto.trigger('click')
 
     expect(useMessageStore().messages.some((d) => /no unlabeled/i.test(d.content))).toBe(true)

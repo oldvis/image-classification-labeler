@@ -2,7 +2,7 @@ import { storeToRefs } from 'pinia'
 import { useStore as useMessageStore } from '~/stores/message'
 import { useStore as useUserStore } from '~/stores/user'
 
-export const NAME_NOTICE = 'Set a Name in the header so new annotations include your user id.'
+export const NAME_NOTICE = 'Set a name in the header so new annotations include your user id.'
 
 /**
  * Soft identity nudge via snackbar (not a permanent layout bar).

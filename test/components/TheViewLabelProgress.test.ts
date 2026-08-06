@@ -105,8 +105,8 @@ describe('theViewLabelProgress import/export wiring', () => {
       global: { plugins: [pinia] },
     })
 
-    expect(wrapper.text()).toContain('Labeled')
-    expect(wrapper.text()).toContain('Unsure')
+    expect(wrapper.text()).toContain('labeled')
+    expect(wrapper.text()).toContain('unsure')
     expect(wrapper.text()).toContain('2')
     expect(wrapper.text()).toContain('1')
 

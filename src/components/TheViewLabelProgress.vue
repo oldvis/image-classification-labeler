@@ -59,7 +59,7 @@ const upload = async () => {
     </div>
     <div class="strip-meta flex grow flex-wrap gap-x-1.5 gap-y-1 min-w-0 items-center">
       <span>
-        Labeled
+        labeled
         <span strip-meta-em>{{ labeledCount }}</span>
         /
         <span strip-meta-em>{{ visualizations.length }}</span>
@@ -69,7 +69,7 @@ const upload = async () => {
         aria-hidden="true"
       >·</span>
       <span>
-        Unlabeled
+        unlabeled
         <span strip-meta-em>{{ nUnlabeled }}</span>
       </span>
       <span
@@ -77,7 +77,7 @@ const upload = async () => {
         aria-hidden="true"
       >|</span>
       <span>
-        Unsure
+        unsure
         <span strip-meta-em>{{ nUnsure }}</span>
       </span>
       <span
@@ -85,7 +85,7 @@ const upload = async () => {
         aria-hidden="true"
       >·</span>
       <span>
-        Confident
+        confident
         <span strip-meta-em>{{ nConfident }}</span>
       </span>
       <button
@@ -94,7 +94,7 @@ const upload = async () => {
         :title="showDetails ? 'Hide category pair counts' : 'Show category pair counts'"
         @click="showDetails = !showDetails"
       >
-        {{ showDetails ? 'Hide Details' : 'Details' }}
+        {{ showDetails ? 'Hide details' : 'Details' }}
       </button>
       <template v-if="showDetails">
         <span>Vis/Not <span strip-meta-em>{{ nVis }} / {{ nNotVis }}</span></span>

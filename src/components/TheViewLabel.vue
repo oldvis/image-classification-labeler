@@ -290,10 +290,10 @@ const positionLabel = computed(() => {
               <button
                 type="button"
                 btn-secondary
-                title="Go to First Unlabeled"
+                title="Go to first unlabeled"
                 @click="gotoUnlabeled"
               >
-                Go to First Unlabeled
+                Go to first unlabeled
               </button>
             </div>
             <span class="strip-meta ml-auto">
@@ -307,7 +307,7 @@ const positionLabel = computed(() => {
       v-else
       class="text-xl m-auto"
     >
-      No Entries Matched
+      No entries matched
     </div>
   </div>
 </template>

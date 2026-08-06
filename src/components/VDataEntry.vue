@@ -200,7 +200,7 @@ const googleHref = computed(() => (
         >
           <div class="i-fa6-solid:database my-auto" />
           <div class="my-auto">
-            View Metadata
+            View metadata
           </div>
         </button>
         <button
