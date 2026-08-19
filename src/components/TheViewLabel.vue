@@ -305,7 +305,7 @@ const positionLabel = computed(() => {
     </div>
     <div
       v-else
-      class="text-xl m-auto"
+      class="text-sm text-gray-500 m-auto p-3 dark:text-gray-400"
     >
       No entries matched
     </div>

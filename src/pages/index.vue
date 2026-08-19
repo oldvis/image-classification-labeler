@@ -20,7 +20,7 @@ void loadDatasets()
 <template>
   <div
     v-if="showLoading"
-    class="text-xl m-auto flex gap-2"
+    class="text-sm text-gray-500 m-auto p-3 flex gap-2 dark:text-gray-400"
   >
     Loading
     <div
