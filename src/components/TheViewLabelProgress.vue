@@ -50,7 +50,7 @@ const upload = async () => {
 </script>
 
 <template>
-  <div status-strip>
+  <div strip>
     <div class="flex shrink-0 gap-1.5 items-center">
       <div class="i-fa6-solid:list-check text-gray-500 my-auto" />
       <div strip-label>
@@ -60,9 +60,9 @@ const upload = async () => {
     <div class="strip-meta flex grow flex-wrap gap-x-1.5 gap-y-1 min-w-0 items-center">
       <span>
         labeled
-        <span strip-meta-em>{{ labeledCount }}</span>
+        <span strip-strong>{{ labeledCount }}</span>
         /
-        <span strip-meta-em>{{ visualizations.length }}</span>
+        <span strip-strong>{{ visualizations.length }}</span>
       </span>
       <span
         strip-sep
@@ -70,7 +70,7 @@ const upload = async () => {
       >·</span>
       <span>
         unlabeled
-        <span strip-meta-em>{{ nUnlabeled }}</span>
+        <span strip-strong>{{ nUnlabeled }}</span>
       </span>
       <span
         strip-sep
@@ -78,7 +78,7 @@ const upload = async () => {
       >|</span>
       <span>
         unsure
-        <span strip-meta-em>{{ nUnsure }}</span>
+        <span strip-strong>{{ nUnsure }}</span>
       </span>
       <span
         strip-sep
@@ -86,7 +86,7 @@ const upload = async () => {
       >·</span>
       <span>
         confident
-        <span strip-meta-em>{{ nConfident }}</span>
+        <span strip-strong>{{ nConfident }}</span>
       </span>
       <button
         type="button"
@@ -97,22 +97,22 @@ const upload = async () => {
         {{ showDetails ? 'Hide details' : 'Details' }}
       </button>
       <template v-if="showDetails">
-        <span>Vis/Not <span strip-meta-em>{{ nVis }} / {{ nNotVis }}</span></span>
+        <span>Vis/Not <span strip-strong>{{ nVis }} / {{ nNotVis }}</span></span>
         <span
           strip-sep
           aria-hidden="true"
         >·</span>
-        <span>Map/Not <span strip-meta-em>{{ nMap }} / {{ nNotMap }}</span></span>
+        <span>Map/Not <span strip-strong>{{ nMap }} / {{ nNotMap }}</span></span>
         <span
           strip-sep
           aria-hidden="true"
         >·</span>
-        <span>Text/Not <span strip-meta-em>{{ nText }} / {{ nNotText }}</span></span>
+        <span>Text/Not <span strip-strong>{{ nText }} / {{ nNotText }}</span></span>
         <span
           strip-sep
           aria-hidden="true"
         >·</span>
-        <span>Table/Not <span strip-meta-em>{{ nTable }} / {{ nNotTable }}</span></span>
+        <span>Table/Not <span strip-strong>{{ nTable }} / {{ nNotTable }}</span></span>
       </template>
     </div>
     <div class="ml-auto flex shrink-0 gap-1">

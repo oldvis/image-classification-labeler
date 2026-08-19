@@ -45,7 +45,7 @@ const categoryByKey = Object.fromEntries(
 
 const labelButtonClass = (tone: LabelTone): string => {
   if (tone === 'yes') return 'btn-label'
-  if (tone === 'no') return 'btn-label-warn'
+  if (tone === 'no') return 'btn-label-danger'
   if (tone === 'confident') return 'btn-label-confident'
   return 'btn-label-neutral'
 }
@@ -184,7 +184,7 @@ const positionLabel = computed(() => {
       <div class="grow" />
       <div class="strip-meta flex flex-wrap gap-x-1.5 gap-y-1 items-center">
         <span>
-          <span strip-meta-em>{{ nInPageLabeled }}/{{ shown.length }}</span>
+          <span strip-strong>{{ nInPageLabeled }}/{{ shown.length }}</span>
           labeled on page
         </span>
         <template v-if="selectors.length !== 0">
@@ -193,7 +193,7 @@ const positionLabel = computed(() => {
             aria-hidden="true"
           >·</span>
           <span>
-            <span strip-meta-em>{{ matched.length }}</span>
+            <span strip-strong>{{ matched.length }}</span>
             matched
           </span>
         </template>
@@ -202,7 +202,7 @@ const positionLabel = computed(() => {
           aria-hidden="true"
         >·</span>
         <span>
-          <span strip-meta-em>{{ visualizations.length }}</span>
+          <span strip-strong>{{ visualizations.length }}</span>
           entries
         </span>
       </div>

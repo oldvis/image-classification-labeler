@@ -148,7 +148,7 @@ const googleHref = computed(() => (
       </div>
       <div
         v-if="$slots['image-footer']"
-        class="status-strip border-t border-gray-200 shrink-0 dark:border-gray-700"
+        class="strip border-t border-gray-200 shrink-0 dark:border-gray-700"
       >
         <slot name="image-footer" />
       </div>

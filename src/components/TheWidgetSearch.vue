@@ -24,7 +24,7 @@ onKeyStroke('Enter', () => {
       class="pr-7 min-w-44 w-48"
       placeholder="Search"
       required
-      input-area
+      strip-input
     >
     <button
       type="button"

@@ -4,7 +4,7 @@ const faviconSrc = `${import.meta.env.BASE_URL}favicon.svg`
 
 <template>
   <nav
-    class="status-strip bg-white dark:bg-hex-121212"
+    class="strip bg-white dark:bg-hex-121212"
     border="b gray-200 dark:gray-700"
   >
     <div class="flex shrink-0 gap-1 items-center">

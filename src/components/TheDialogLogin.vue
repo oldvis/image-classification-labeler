@@ -68,7 +68,7 @@ const onSubmit = (): void => {
         aria-labelledby="annotator-name-title"
         @submit.prevent="onSubmit"
       >
-        <div class="status-strip border-b border-gray-200 dark:border-gray-700">
+        <div class="strip border-b border-gray-200 dark:border-gray-700">
           <div
             id="annotator-name-title"
             strip-label
@@ -107,7 +107,7 @@ const onSubmit = (): void => {
           </p>
         </div>
 
-        <div class="status-strip border-t border-gray-200 gap-1.5 justify-end dark:border-gray-700">
+        <div class="strip border-t border-gray-200 gap-1.5 justify-end dark:border-gray-700">
           <button
             type="button"
             btn-secondary

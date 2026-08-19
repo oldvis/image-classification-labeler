@@ -18,7 +18,7 @@ const hasSelectorType = (type: SelectorType): boolean => (
 
 <template>
   <div
-    status-strip
+    strip
     border="b gray-200 dark:gray-700"
   >
     <div class="flex shrink-0 gap-1.5 items-center">

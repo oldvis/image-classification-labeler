@@ -77,7 +77,7 @@ Brand format in the nav: **`OldVis · {Task}`**. Document title: **`{Task} · Ol
 ## Colors
 
 - **Primary (Teal `#0d9488`):** Affirmative chrome commits — dialog **Save**, active filter state (`pill-on`). Soft tint (`btn-label`) for yes-tones on classification buttons; solid fill for the same hue on tag/mark swatches.
-- **Danger (Red `#dc2626`):** Destructive chrome emphasis. Soft red tint (`btn-label-warn`) for “Not X” classification; solid fill for the same hue on negative tag/mark swatches.
+- **Danger (Red `#dc2626`):** Destructive chrome emphasis. Soft red tint (`btn-label-danger`) for “Not X” classification; solid fill for the same hue on negative tag/mark swatches.
 - **Neutral / Confident:** Unsure = soft gray (`btn-label-neutral` / solid `#6b7280` swatch). Confident = soft sky (`btn-label-confident` / solid `#0284c7` swatch). Meta tags, not a third solid primary.
 - **Other categories:** Extra mark/draw classes keep a categorical palette (`schemeCategory10`); do not reuse polarity hues for those.
 - **Secondary (outline white):** Chrome strip actions (Previous/Next, Download/Upload, Set annotator name, dialog Cancel) and filter toggles off-state.
@@ -139,22 +139,34 @@ Small radii (`~6px`) on buttons, inputs, and panels. Filter toggles (`pill` / `p
 
 ## Components
 
-### Buttons (Uno shortcuts in each app)
+Uno shortcuts are the chrome vocabulary. Prefix = family. Selected/active = `-on`. Do not use `base-btn` in templates (internal mixin).
+
+### Buttons and controls
+
+| Shortcut                                                                       | Use                                                                       |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `btn`                                                                          | Primary fill — dialog Save / Retry (teal, `h-6`)                          |
+| `btn-secondary`                                                                | Outline chrome / Cancel                                                   |
+| `btn-ghost`                                                                    | Low-emphasis text actions                                                 |
+| `btn-danger`                                                                   | Destructive fill (red)                                                    |
+| `btn-neutral`                                                                  | Neutral fill (gray)                                                       |
+| `btn-label` / `btn-label-danger` / `btn-label-neutral` / `btn-label-confident` | Classification pairs only — soft tints, `text-base` (classification apps) |
+| `icon-btn`                                                                     | Icon-only (theme, GitHub, close) — not the `btn` geometry                 |
+| `pill` / `pill-on`                                                             | Filter toggles (`h-6`)                                                    |
+| `chip`                                                                         | Active filter tokens (`h-6`)                                              |
+| `tool-btn` / `tool-btn-on`                                                     | Draw tools — same `h-6` as pills (draw-tool apps)                         |
+| `kbd`                                                                          | Key hint on hot-path buttons                                              |
+
+### Strips, panels, dialogs, menus
 
 | Shortcut                                                            | Use                                                                     |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `btn-secondary`                                                     | Chrome / Cancel — outline white, `h-6`                                  |
-| `btn`                                                               | Dialog Save / Retry — filled teal, same `h-6`                           |
-| `btn-ghost`                                                         | Low-emphasis utilities (same `h-6`)                                     |
-| `btn-label*`                                                        | Classification labels only — soft tints (`text-base`)                   |
-| `pill` / `pill-on` / `chip`                                         | Filter toggles and active filter chips (`h-6`)                          |
-| `strip-label` / `strip-meta` / `strip-meta-em` / `strip-sep`        | Strip titles, muted copy, emphasized counts, middot (`·`) between stats |
-| `input-area`                                                        | Compact strip search input (`h-6`)                                      |
-| `dialog-panel` / `dialog-body` / `dialog-field` / `dialog-backdrop` | Modal chrome (see Dialogs)                                              |
-| `icon-btn`                                                          | Theme, GitHub, close                                                    |
-| `kbd`                                                               | Subtle key hint on hot-path buttons (inherits text color, low opacity)  |
-| `tool-btn` / `tool-btn-active`                                      | Draw tools — same `h-6` as pills (only in apps that have them)          |
-| `menu-trigger` / `menu-panel` / `menu-item` / `menu-item-on`        | Compact selects (only in apps that have them)                           |
+| `strip`                                                             | App chrome row (nav, selectors/tools, progress) — gray band, `min-h-10` |
+| `strip-label` / `strip-meta` / `strip-strong` / `strip-sep`         | Strip title, muted copy, emphasized counts, middot                      |
+| `strip-input`                                                       | Search/filter input in a strip (`h-6`)                                  |
+| `view-container` / `view-header`                                    | Workbench panel + its header row                                        |
+| `dialog-backdrop` / `dialog-panel` / `dialog-body` / `dialog-field` | Modal chrome (`dialog-field` is `h-8`)                                  |
+| `menu-trigger` / `menu-panel` / `menu-item` / `menu-item-on`        | Compact selects (apps that have them)                                   |
 
 Focus-visible: teal ring. Disabled: reduced opacity, no pointer events.
 
@@ -162,9 +174,9 @@ Focus-visible: teal ring. Disabled: reduced opacity, no pointer events.
 
 Hot-path buttons may show a `kbd` hint. Ignore shortcuts when focus is in an editable field or a modifier (Ctrl/Meta/Alt) is held. Key maps stay app-local.
 
-### Status strips
+### Strips
 
-Dense horizontal rows (`status-strip` / `view-header`). Top = Selectors/Tools. Bottom = Progress + I/O. Image-footer nav stays under the image only; side-pane utilities (View metadata, Copy, URL) stay in-pane without forming a half-width bar across the workbench. Inline strip **stats** use middot separators within a group (`strip-sep`: `1/1 labeled on page · 89 matched · 13511 entries`). Progress uses `|` between coverage and confidence-tag groups. Do not put middots around action controls (e.g. Details) — those sit after the stats with normal spacing.
+Dense horizontal rows (`strip` / `view-header`). Top = Selectors/Tools. Bottom = Progress + I/O. Image-footer nav stays under the image only; side-pane utilities (View metadata, Copy, URL) stay in-pane without forming a half-width bar across the workbench. Inline strip **stats** use middot separators within a group (`strip-sep`: `1/1 labeled on page · 89 matched · 13511 entries`). Progress uses `|` between coverage and confidence-tag groups. Do not put middots around action controls (e.g. Details) — those sit after the stats with normal spacing.
 
 ### Dialogs
 
@@ -172,7 +184,7 @@ Compact panel, not a spacious card. Structure:
 
 1. **Backdrop** — `dialog-backdrop` (centered, dimmed).
 2. **Panel** — `dialog-panel` (narrow, bordered, single soft shadow).
-3. **Header / footer** — reuse `status-strip` with border-b / border-t (same density as app chrome).
+3. **Header / footer** — reuse `strip` with border-b / border-t (same density as app chrome).
 4. **Body** — `dialog-body`; fields use `dialog-field` (`h-8`, not strip `h-6`).
 5. **Actions** — Cancel = `btn-secondary`, Save = `btn` (teal). Do not make both outline.
 
@@ -195,6 +207,6 @@ Stay app-local: classification pairs, draw tools, gallery facets, trees. They mu
 - Don't add decorative gradients, hero imagery, or marketing card grids to labeling surfaces.
 - Don't block labeling behind identity; keep Set Name in the nav. Use a one-shot info snackbar for the unsigned nudge — not a permanent layout bar. The nudge stays until the user closes it or sets a name (same copy and chrome in every app: “Set a name in the header…”).
 - Don't invent parallel color shortcuts per repo; match this token ladder when editing `uno.config.ts`.
-- Don't require every app to define every shortcut — classification apps keep `btn-label*`; draw-tool apps keep `tool-btn` / `menu-*`; shared chrome shortcuts must match.
+- Don't require every app to define every shortcut — classification apps keep `btn-label*`; draw-tool apps keep `tool-btn` / `tool-btn-on`; shared chrome shortcuts must match.
 - Don't move primary label controls under the image when the workbench has a metadata/control pane.
 - Don't style dialogs as airy marketing cards; reuse strip header/footer + `dialog-*` shortcuts.
